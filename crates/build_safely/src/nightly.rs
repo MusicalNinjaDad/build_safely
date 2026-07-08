@@ -77,7 +77,7 @@
 //!
 //! - This will obtain config.toml files based upon `OUT_DIR`. If this is not under the project
 //!   root, you can override by providing an alternative path via the environment variable
-//!   `NINJA_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
+//!   `BUILD_SAFELY_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
 //!   for more details.
 //! - This will not respect additional entries passed at the command line via
 //!   `cargo --config unstable.allow-features=[...]`
@@ -457,13 +457,13 @@ fn cargo_config<P: AsRef<Path>>(
 ///
 /// - This will obtain config.toml files based upon `OUT_DIR`. If this is not under the project
 ///   root, you can override by providing an alternative path via the environment variable
-///   `NINJA_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
+///   `BUILD_SAFELY_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
 ///   for more details.
 /// - This will not respect additional entries passed at the command line via
 ///   `cargo --config unstable.allow-features=[...]`
 pub fn cargo_allowed_features() -> Result<AllowedFeatures> {
-    println!("cargo::rerun-if-env-changed=NINJA_CARGO_CONFIG_DIR");
-    let cwd = std::env::var("NINJA_CARGO_CONFIG_DIR")
+    println!("cargo::rerun-if-env-changed=BUILD_SAFELY_CARGO_CONFIG_DIR");
+    let cwd = std::env::var("BUILD_SAFELY_CARGO_CONFIG_DIR")
         .or_else(|_| std::env::var("OUT_DIR"))
         .ok();
     _cargo_allowed_features(cwd)
