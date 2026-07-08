@@ -1,0 +1,22 @@
+[package]
+name = "ninja-build_rs"
+version.workspace = true
+edition.workspace = true
+readme.workspace = true
+description.workspace = true
+authors.workspace = true
+keywords.workspace = true
+homepage.workspace = true
+repository.workspace = true
+categories.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+autocfg = "1.5.1"
+derive_more.version = "2.1.1"
+derive_more.features = ["display"]
+indexmap = "2.14.0"
+
+[dev-dependencies]
+tempfile = "3.27.0"
