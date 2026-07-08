@@ -18,7 +18,7 @@ fn main() -> Result<()> {
         unimplemented!("do something")
     }
     // get a new AutoCfg or provide a valuable error
-    // rather than panicing.
+    // rather than panicking.
     let ac = AutoCfg::new()?;
     // check to see if the downstream crate has defined
     // `unstable.allow-features` in `.cargo/config.toml`.
