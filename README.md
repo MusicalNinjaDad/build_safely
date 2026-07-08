@@ -1,4 +1,4 @@
-# ninja-build_rs
+# build_safely
 
 Designed to help create good build scripts, with a focus on ease of use for you,
 valuable output in cargo build -vv & no annoying surprises for anyone downstream.
@@ -6,7 +6,7 @@ valuable output in cargo build -vv & no annoying surprises for anyone downstream
 ## Usage
 
 ```rust
-use ninja_build_rs::prelude::*;
+use build_safely::prelude::*;
 // Result uses BuildError to give meaningful messages
 fn main() -> Result<()> {
     // get an environment variable and re-run build script if it changes.
@@ -36,7 +36,7 @@ fn main() -> Result<()> {
 ## Prelude
 
 ```rust
-use ninja_build_rs::prelude::*;
+use build_safely::prelude::*;
 ```
 
 provides:
@@ -52,7 +52,7 @@ provides:
 
 ## Note to downstream crates
 
-If you (transiently) depend on a crate which uses `ninja-build_rs` and have implemented a
+If you (transiently) depend on a crate which uses `build_safely` and have implemented a
 whitelist of `allowed-features`.
 
 Due to limitations in the information provided by cargo:

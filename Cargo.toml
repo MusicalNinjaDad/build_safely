@@ -14,3 +14,11 @@ repository = "https://github.com/MusicalNinjaDad/build_safely"
 categories = ["development-tools::build-utils"]
 license = "MIT"
 rust-version = "1.85.1"
+
+[workspace.dependencies]
+build_safely = { version = "0.4.1", path = "crates/build_safely" }
+
+autocfg = "1.5.1"
+derive_more = { version = "2.1.1", features = ["display"] }
+indexmap = "2.14.0"
+tempfile = "3.27.0"

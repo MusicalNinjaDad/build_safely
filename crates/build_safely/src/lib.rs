@@ -60,7 +60,7 @@ use std::{env::VarError, ffi::OsString};
 
 use indexmap::IndexSet;
 
-/// Recommended prelude: `use ninja-build_rs::prelude::*`
+/// Recommended prelude: `use build_safely::prelude::*`
 ///
 /// - A [`Result`] alias & [`BuildError`] type that gives meaningful output from `main() -> Result<()>`.
 /// - [`get_var()`] & [`split_var()`] which automatically register `cargo::rerun-if-env-changed`

@@ -70,7 +70,7 @@
 //!
 //! # Note to downstream crates
 //!
-//! If you (transiently) depend on a crate which uses `ninja-build_rs` and have implemented a
+//! If you (transiently) depend on a crate which uses `build_safely` and have implemented a
 //! whitelist of `allowed-features`.
 //!
 //! Due to limitations in the information provided by cargo:

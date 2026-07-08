@@ -1,5 +1,5 @@
 [package]
-name = "build_safely"
+name = "ninja-build_rs"
 version.workspace = true
 edition.workspace = true
 readme.workspace = true
@@ -12,10 +12,7 @@ categories.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
-[dependencies]
-autocfg.workspace = true
-derive_more.workspace = true
-indexmap.workspace = true
+[lib]
 
-[dev-dependencies]
-tempfile.workspace = true
+[dependencies]
+build_safely.workspace = true
