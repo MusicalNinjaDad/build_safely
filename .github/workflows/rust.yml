@@ -5,7 +5,7 @@ on:
     paths: 
     - "**.rs"
     - "**/Cargo.toml"
-    - "**/rust-toolchain.toml"
+    - "rust-toolchain.toml"
     - ".github/workflows/rust.yml"
   pull_request:
   workflow_call:
@@ -14,6 +14,7 @@ env:
     CARGO_TERM_COLOR: always
 
 jobs:
+
   skip_check:
     runs-on: ubuntu-latest
     outputs:
@@ -24,96 +25,59 @@ jobs:
         with:
           concurrent_skipping: 'same_content_newer'
 
-  # indirection needed as fromJson will not read env context in matrix strategy
-  crates:
+  test:
     needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.setup-matrix.outputs.matrix }}
-    steps:
-      - id: setup-matrix
-        uses: druzsan/setup-matrix@e52eed47b195a3c2157f91e1baceaa82df2276f2 #v2
-        with:
-          matrix: |
-            crate: ["ninja-xtask", "ninja-build_rs"]
 
-  test:
-    needs:
-      - skip_check
-      - crates
-    if: needs.skip_check.outputs.should_skip != 'true'
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.crates.outputs.matrix) }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.crate }}
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7.0.0
     - name: Run tests
       run: |
         cargo test
-        cargo +nightly test
+        cargo test --examples
     - name: Test fixture
-      if: ${{ matrix.crate == 'ninja-build_rs' }}
-      working-directory: ${{ matrix.crate }}/examples/assert_matches
+      working-directory: crates/build_safely/examples/assert_matches
       run: ./test.sh
 
   lint:
-    needs:
-      - skip_check
-      - crates
+    needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.crates.outputs.matrix) }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.crate }}
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7.0.0
     - name: clippy
       run: cargo clippy -- --deny warnings
 
   fmt:
-    needs:
-      - skip_check
-      - crates
+    needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.crates.outputs.matrix) }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.crate }}
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7.0.0
     - name: fmt
       run: cargo fmt --check
 
-  # msrv:
-  #   needs:
-  #     - skip_check
-  #     - crates
-  #   if: needs.skip_check.outputs.should_skip != 'true'
-  #   strategy:
-  #     fail-fast: false
-  #     matrix: ${{ fromJson(needs.crates.outputs.matrix) }}
-  #   defaults:
-  #     run:
-  #       working-directory: ${{ matrix.crate }}
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     RUSTC_BOOTSTRAP: 1
-  #   steps:
-  #   - uses: actions/checkout@v7
-  #   - name: install cargo-msrv
-  #     uses: taiki-e/install-action@v2.75.27
-  #     with:
-  #       tool: cargo-msrv
-  #   - name: check MSRV
-  #     run: cargo msrv verify
+  msrv:
+    needs: skip_check
+    if: needs.skip_check.outputs.should_skip != 'true'
+
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: crates/build_safely
+
+    steps:
+    - uses: actions/checkout@v7.0.0
+    - name: install cargo-msrv
+      uses: taiki-e/install-action@v2.82.5
+      with:
+        tool: cargo-msrv
+    - name: check MSRV
+      run: cargo msrv verify

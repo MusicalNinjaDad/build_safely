@@ -1,0 +1,18 @@
+[package]
+name = "ninja-build_rs"
+version.workspace = true
+edition.workspace = true
+readme.workspace = true
+description.workspace = true
+authors.workspace = true
+keywords.workspace = true
+homepage.workspace = true
+repository.workspace = true
+categories.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+
+[dependencies]
+build_safely.workspace = true

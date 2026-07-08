@@ -13,7 +13,7 @@ jobs:
   merge:
     runs-on: ubuntu-latest
                                                                   # Manually set the repo name so this doesn't run on forks
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'MusicalNinjaDad/rust'
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'MusicalNinjaDad/build_safely'
     steps:
       - name: Ensure this is a valid dependabot PR
         id: metadata

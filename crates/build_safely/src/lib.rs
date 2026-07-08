@@ -5,7 +5,7 @@
 //!
 //! ```rust, no_run
 //! # use indexmap::IndexSet;
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //!
 //! // Result uses BuildError to give meaningful messages
 //! fn main() -> Result<()> {
@@ -21,7 +21,7 @@
 //!     }
 //!
 //!     // get a new AutoCfg or provide a valuable error
-//!     // rather than panicing.
+//!     // rather than panicking.
 //!     let ac = AutoCfg::new()?;
 //!
 //!     // check to see if the downstream crate has defined
@@ -41,7 +41,7 @@
 //! # Prelude
 //!
 //! ```rust
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //! ```
 //!
 //! provides:
@@ -53,14 +53,14 @@
 //!   [`cargo_allowed_features`](nightly::cargo_allowed_features) &
 //!   enum [`UnstableFeature`](nightly::UnstableFeature) to provide a safe way to identify the
 //!   availability of nightly features & handle the future stabilisation process without additional
-//!   effort on your part. All while respecting any `allow-feature` whitelists.
+//!   effort on your part. All while respecting any `allow-features` whitelists.
 //!
 
 use std::{env::VarError, ffi::OsString};
 
 use indexmap::IndexSet;
 
-/// Recommended prelude: `use ninja-build_rs::prelude::*`
+/// Recommended prelude: `use build_safely::prelude::*`
 ///
 /// - A [`Result`] alias & [`BuildError`] type that gives meaningful output from `main() -> Result<()>`.
 /// - [`get_var()`] & [`split_var()`] which automatically register `cargo::rerun-if-env-changed`
@@ -69,7 +69,7 @@ use indexmap::IndexSet;
 ///   [`cargo_allowed_features`](nightly::cargo_allowed_features) &
 ///   enum [`UnstableFeature`](nightly::UnstableFeature) to provide a safe way to identify the
 ///   availability of nightly features & handle the future stabilisation process without additional
-///   effort on your part. All while respecting any `allow-feature` whitelists.
+///   effort on your part. All while respecting any `allow-features` whitelists.
 pub mod prelude {
     pub use crate::nightly::{AutoCfg, Nightly, UnstableFeature::*, cargo_allowed_features};
     pub use crate::{Result, get_var, split_var};

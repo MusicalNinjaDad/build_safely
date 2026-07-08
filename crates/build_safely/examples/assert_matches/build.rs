@@ -1,5 +1,5 @@
 use autocfg::AutoCfg;
-use ninja_build_rs::prelude::*;
+use build_safely::prelude::*;
 
 fn main() -> Result<()> {
     let ac = AutoCfg::new()?;

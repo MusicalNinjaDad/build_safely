@@ -3,7 +3,7 @@
 //! for downstream users and verbose when done properly. This provides extensions to the amazing
 //! [autocfg::AutoCfg] (re-exported via our prelude to make your life easier) to safely identify the
 //! availability of nightly features & handle the future stabilisation process without additional
-//! effort on your part. All while respecting any `allow-feature` whitelists.
+//! effort on your part. All while respecting any `allow-features` whitelists.
 //!
 //! For a list of known features with dedicated probes see [UnstableFeature]
 //!
@@ -12,7 +12,7 @@
 //! ## In `build.rs`
 //!
 //! ```rust, no_run
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //!
 //! fn main() -> Result<()> {
 //!     // get a new AutoCfg or provide a valuable error
@@ -70,7 +70,7 @@
 //!
 //! # Note to downstream crates
 //!
-//! If you (transiently) depend on a crate which uses `ninja-build_rs` and have implemented a
+//! If you (transiently) depend on a crate which uses `build_safely` and have implemented a
 //! whitelist of `allowed-features`.
 //!
 //! Due to limitations in the information provided by cargo:
