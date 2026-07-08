@@ -5,7 +5,7 @@
 //!
 //! ```rust, no_run
 //! # use indexmap::IndexSet;
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //!
 //! // Result uses BuildError to give meaningful messages
 //! fn main() -> Result<()> {
@@ -41,7 +41,7 @@
 //! # Prelude
 //!
 //! ```rust
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //! ```
 //!
 //! provides:

@@ -12,7 +12,7 @@
 //! ## In `build.rs`
 //!
 //! ```rust, no_run
-//! use ninja_build_rs::prelude::*;
+//! use build_safely::prelude::*;
 //!
 //! fn main() -> Result<()> {
 //!     // get a new AutoCfg or provide a valuable error

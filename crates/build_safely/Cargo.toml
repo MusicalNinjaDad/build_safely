@@ -1,5 +1,5 @@
 [package]
-name = "ninja-build_rs"
+name = "build_safely"
 version.workspace = true
 edition.workspace = true
 readme.workspace = true

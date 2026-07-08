@@ -1,5 +1,5 @@
 [package]
-name = "ninja-build_rs-assert_matches_fixture"
+name = "build_safely-assert_matches_fixture"
 edition = "2024"
 version = "0.0.0"
 publish = false
@@ -9,4 +9,4 @@ rust-version = "1.85.1"
 
 [build-dependencies]
 autocfg = "1.5.1"
-ninja-build_rs.path = "../.."
+build_safely.path = "../.."

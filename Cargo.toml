@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*", "crates/ninja-build_rs/examples/*"]
+members = ["crates/*", "crates/build_safely/examples/*"]
 resolver = "3"
 
 [workspace.package]
