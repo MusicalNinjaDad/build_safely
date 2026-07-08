@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.5.0]
+
+## Breaking changes
+
+- renamed override to match new crate naming: `BUILD_SAFELY_CARGO_CONFIG_DIR`
+
 ## [v0.4.2]
 
 ### Technical changes
