@@ -60,5 +60,18 @@
 //!   availability of nightly features & handle the future stabilisation process without additional
 //!   effort on your part. All while respecting any `allow-features` whitelists.
 //!
+//! # Note to downstream crates
+//!
+//! If you (transiently) depend on a crate which uses `build_safely` and have implemented a
+//! whitelist of `allowed-features`.
+//!
+//! Due to limitations in the information provided by cargo:
+//!
+//! - This will obtain config.toml files based upon `OUT_DIR`. If this is not under the project
+//!   root, you can override by providing an alternative path via the environment variable
+//!   `BUILD_SAFELY_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
+//!   for more details.
+//! - This will not respect additional entries passed at the command line via
+//!   `cargo --config unstable.allow-features=[...]`
 
 pub use build_safely::*;
