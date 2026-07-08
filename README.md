@@ -48,7 +48,7 @@ provides:
   [`cargo_allowed_features`](nightly::cargo_allowed_features) &
   enum [`UnstableFeature`](nightly::UnstableFeature) to provide a safe way to identify the
   availability of nightly features & handle the future stabilisation process without additional
-  effort on your part. All while respecting any `allow-feature` whitelists.
+  effort on your part. All while respecting any `allow-features` whitelists.
 
 ## Note to downstream crates
 
