@@ -447,7 +447,7 @@ impl Nightly for AutoCfg {
 
         let mut has = true;
         for feature in features.into_iter() {
-            has = has && self.emit_unstable_feature(feature, allowed_features);
+            has = self.emit_unstable_feature(feature, allowed_features) && has;
         }
 
         if has {
