@@ -337,6 +337,20 @@ pub trait Nightly {
         feature: UnstableFeature,
         allowed_features: &AllowedFeatures,
     ) -> bool;
+
+    /// Calls [`emit_unstable_feature`](Nightly::emit_unstable_feature) for all given features,
+    /// additionally setting `has_{bundlename}` & returning `true` if all features are available.
+    ///
+    /// # Note
+    ///
+    /// - This will always return false if any of the features are
+    ///   [`OtherFeature`](UnstableFeature::OtherFeature)
+    fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
+        &self,
+        features: F,
+        allowed_features: &AllowedFeatures,
+        bundle_name: &str,
+    ) -> bool;
 }
 
 impl Nightly for AutoCfg {
@@ -420,6 +434,27 @@ impl Nightly for AutoCfg {
                 false
             }
         }
+    }
+
+    fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
+        &self,
+        features: F,
+        allowed_features: &AllowedFeatures,
+        bundle_name: &str,
+    ) -> bool {
+        let cfg = format!("has_{bundle_name}");
+        autocfg::emit_possibility(&cfg);
+
+        let mut has = true;
+        for feature in features.into_iter() {
+            has = has && self.emit_unstable_feature(feature, allowed_features);
+        }
+
+        if has {
+            autocfg::emit(&cfg);
+        }
+
+        has
     }
 }
 
