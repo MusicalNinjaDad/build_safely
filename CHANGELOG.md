@@ -1,8 +1,15 @@
 # build_safely CHANGELOG
 
+## [v0.5.1]
+
+### New features
+
+- Added `Nightly::emit_unstable_feature_bundle`
+- `Nightly::emit_unstable_feature` returns `bool` representing `has_...`
+
 ## [v0.5.0]
 
-## Breaking changes
+### Breaking changes
 
 - renamed override to match new crate naming: `BUILD_SAFELY_CARGO_CONFIG_DIR`
 
