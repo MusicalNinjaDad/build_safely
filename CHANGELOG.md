@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.5.2]
+
+### New features
+
+- Added `UnstableFeature::bool_to_result`
+
 ## [v0.5.1]
 
 ### New features
