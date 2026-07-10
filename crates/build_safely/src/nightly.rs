@@ -115,6 +115,12 @@ pub enum UnstableFeature {
     ///   use std::assert_matches::assert_matches;
     ///   ```
     assert_matches,
+    /// ## Provides cfg flags for feature [`bool_to_result`](https://github.com/rust-lang/rust/issues/142748)
+    /// - `#![cfg_attr(unstable_bool_to_result, feature(bool_to_result))]`
+    /// - `#[cfg(has_bool_to_result)]`
+    /// - this gates [`bool::ok_or`] & [`bool::ok_or_else`]
+    /// - **Stable since 1.98.0**
+    bool_to_result,
     /// ## Provides cfg flags for feature [`can_vector`](https://github.com/rust-lang/rust/issues/69941)
     /// - `#![cfg_attr(unstable_can_vector, feature(can_vector))]`
     /// - `#[cfg(has_can_vector)]`
@@ -154,6 +160,7 @@ impl UnstableFeature {
     fn from(feature: &str) -> Self {
         match feature {
             "assert_matches" => Self::assert_matches,
+            "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
@@ -243,6 +250,14 @@ use std::assert_matches::assert_matches;
 
 fn main() {
     assert_matches!(Some(4), Some(_));
+}
+"#;
+    }
+
+    pub mod bool_to_result {
+        pub const AVAILABLE: &str = r#"
+fn main() {
+    let _ = true.ok_or(());
 }
 "#;
     }
@@ -378,6 +393,10 @@ impl Nightly for AutoCfg {
                     autocfg::emit("assert_matches_location=\"module\"");
                 }
                 has(ac, &feature, allowed, probes::assert_matches::AVAILABLE)
+            }
+            UnstableFeature::bool_to_result => {
+                unstable(ac, &feature, allowed);
+                has(ac, &feature, allowed, probes::bool_to_result::AVAILABLE)
             }
             UnstableFeature::can_vector => {
                 unstable(ac, &feature, allowed);
