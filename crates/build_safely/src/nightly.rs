@@ -161,7 +161,7 @@ pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`unsized_const_params`](https://github.com/rust-lang/rust/issues/128028)
     /// - `#![cfg_attr(unstable_unsized_const_params, feature(unsized_const_params))]`
     /// - `#[cfg(has_unsized_const_params)]`
-    /// - Note: `unsized_const_params` requires `adt_const_params` for actual usage
+    /// - Note: `unsized_const_params` requires `adt_const_params` to be enabled
     unsized_const_params,
     /// ## Provides cfg flags for feature [`write_all_vectored`](https://github.com/rust-lang/rust/issues/70436)
     /// - `#![cfg_attr(unstable_write_all_vectored, feature(write_all_vectored))]`
@@ -233,22 +233,23 @@ mod probes {
     }
 
     /// Register `#[cfg(has_feature)]` & run a default probe
-    pub fn unstable(ac: &AutoCfg, feature: &UnstableFeature, allowed: bool) {
+    pub fn unstable(ac: &AutoCfg, feature: &UnstableFeature, allowed: bool) -> bool {
         let cfg = format!("unstable_{feature}");
         autocfg::emit_possibility(&cfg);
 
-        if allowed {
-            let code = format!(
-                r#"
+        let code = format!(
+            r#"
 #![deny(stable_features)]
 #![feature({feature})]
 #![allow(unused)]
 "#
-            );
-
-            if ac.probe_raw(&code).is_ok() {
-                autocfg::emit(&cfg);
-            }
+        );
+        
+        if allowed && ac.probe_raw(&code).is_ok() {
+            autocfg::emit(&cfg);
+            true
+        } else {
+            false
         }
     }
 
@@ -518,7 +519,12 @@ impl Nightly for AutoCfg {
             }
             UnstableFeature::unsized_const_params => {
                 unstable(ac, &feature, allowed);
-                has(ac, &feature, allowed, probes::unsized_const_params::AVAILABLE)
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::unsized_const_params::AVAILABLE,
+                )
             }
             UnstableFeature::write_all_vectored => {
                 unstable(ac, &feature, allowed);
