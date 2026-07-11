@@ -161,6 +161,7 @@ pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`unsized_const_params`](https://github.com/rust-lang/rust/issues/128028)
     /// - `#![cfg_attr(unstable_unsized_const_params, feature(unsized_const_params))]`
     /// - `#[cfg(has_unsized_const_params)]`
+    /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
     /// - Note: `unsized_const_params` requires `adt_const_params` to be enabled
     unsized_const_params,
     /// ## Provides cfg flags for feature [`write_all_vectored`](https://github.com/rust-lang/rust/issues/70436)
