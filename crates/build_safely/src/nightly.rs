@@ -335,13 +335,6 @@ type Bang = !;
     }
 
     pub mod proc_macro_diagnostic {
-        /// Special probe as feature only available in proc_macro context
-        pub const UNSTABLE: &str = r#"
-#![deny(stable_features)]
-#![feature(proc_macro_diagnostic)]
-#![allow(unused)]
-extern crate proc_macro;
-"#;
         pub const AVAILABLE: &str = r#"
 extern crate proc_macro;
 use proc_macro::Diagnostic;      
@@ -495,14 +488,7 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
             }
             UnstableFeature::proc_macro_diagnostic => {
-                autocfg::emit_possibility("unstable_proc_macro_diagnostic");
-                if allowed
-                    && self
-                        .probe_raw(probes::proc_macro_diagnostic::UNSTABLE)
-                        .is_ok()
-                {
-                    autocfg::emit("unstable_proc_macro_diagnostic");
-                }
+                unstable(ac, &feature, allowed, Some("extern crate proc_macro;"));
                 has(
                     ac,
                     &feature,
