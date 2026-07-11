@@ -103,6 +103,10 @@ use probes::{has, make_probe, unstable};
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
 #[derive(Debug, Clone, PartialEq, Eq, Display)]
 pub enum UnstableFeature {
+    /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
+    /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
+    /// - `#[cfg(has_adt_const_params)]`
+    adt_const_params,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_assert_matches, feature(assert_matches))]`
     /// - `#[cfg(has_assert_matches)]`
@@ -126,6 +130,10 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_can_vector)]`
     /// - this gates [`std::io::Read::is_read_vectored`] & [`std::io::Write::is_write_vectored`]
     can_vector,
+    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
+    /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
+    /// - `#[cfg(has_doc_notable_trait)]`
+    doc_notable_trait,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
@@ -138,6 +146,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
     proc_macro_diagnostic,
+    /// ## Provides cfg flags for feature [`strip_circumfix`](https://github.com/rust-lang/rust/issues/147946)
+    /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
+    /// - `#[cfg(has_strip_circumfix)]`
+    strip_circumfix,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_try_trait_v2, feature(try_trait_v2))]`
     /// - `#[cfg(has_try_trait_v2)]`
@@ -146,6 +158,11 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_try_trait_v2_residual, feature(try_trait_v2_residual))]`
     /// - `#[cfg(has_try_trait_v2_residual)]`
     try_trait_v2_residual,
+    /// ## Provides cfg flags for feature [`unsized_const_params`](https://github.com/rust-lang/rust/issues/128028)
+    /// - `#![cfg_attr(unstable_unsized_const_params, feature(unsized_const_params))]`
+    /// - `#[cfg(has_unsized_const_params)]`
+    /// - Note: `unsized_const_params` requires `adt_const_params` for actual usage
+    unsized_const_params,
     /// ## Provides cfg flags for feature [`write_all_vectored`](https://github.com/rust-lang/rust/issues/70436)
     /// - `#![cfg_attr(unstable_write_all_vectored, feature(write_all_vectored))]`
     /// - `#[cfg(has_write_all_vectored)]`
@@ -159,14 +176,18 @@ impl UnstableFeature {
     // This is not pub or trait From to avoid risk of typos
     fn from(feature: &str) -> Self {
         match feature {
+            "adt_const_params" => Self::adt_const_params,
             "assert_matches" => Self::assert_matches,
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
+            "doc_notable_trait" => Self::doc_notable_trait,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
+            "strip_circumfix" => Self::strip_circumfix,
             "try_trait_v2" => Self::try_trait_v2,
             "try_trait_v2_residual" => Self::try_trait_v2_residual,
+            "unsized_const_params" => Self::unsized_const_params,
             "write_all_vectored" => Self::write_all_vectored,
             _ => Self::OtherFeature(feature.to_string()),
         }
@@ -231,6 +252,15 @@ mod probes {
         }
     }
 
+    pub mod adt_const_params {
+        pub const AVAILABLE: &str = r#"
+struct Foo<const N: usize>;
+fn main() {
+    let _: Foo<5>;
+}
+"#;
+    }
+
     pub mod assert_matches {
         pub const AVAILABLE: &str = r#"
 use std::assert_matches;
@@ -271,6 +301,13 @@ fn main() {
 "#;
     }
 
+    pub mod doc_notable_trait {
+        pub const AVAILABLE: &str = r#"
+#[doc(notable_trait)]
+trait Foo {}
+"#;
+    }
+
     pub mod iterator_try_collect {
         // vec! not array: https://internals.rust-lang.org/t/code-compiles-on-playground-but-fails-when-passed-via-stdin-to-rustc/24393
         pub const AVAILABLE: &str = r#"
@@ -300,6 +337,15 @@ use proc_macro::Diagnostic;
 "#;
     }
 
+    pub mod strip_circumfix {
+        pub const AVAILABLE: &str = r#"
+fn main() {
+    let s = "foo";
+    let _ = s.strip_circumfix("f", "o");
+}
+"#;
+    }
+
     pub mod try_trait_v2 {
         pub const AVAILABLE: &str = r#"
 use std::ops::Try;
@@ -309,6 +355,20 @@ use std::ops::Try;
     pub mod try_trait_v2_residual {
         pub const AVAILABLE: &str = r#"
 use std::ops::Residual;
+"#;
+    }
+
+    pub mod unsized_const_params {
+        // requires adt_const_params
+        // possible duplication of allow(stable_features) is OK as duplication check is a
+        // clippy lint - and we are just compiling the probe with rustc
+        pub const AVAILABLE: &str = r#"
+#![allow(stable_features)]
+#![feature(adt_const_params)]
+struct Foo<const N: &'static str>;
+fn main() {
+    let _: Foo<"test">;
+}
 "#;
     }
 
@@ -380,6 +440,10 @@ impl Nightly for AutoCfg {
         let ac = self;
         let allowed = allowed_features.includes(&feature);
         match feature {
+            UnstableFeature::adt_const_params => {
+                unstable(ac, &feature, allowed);
+                has(ac, &feature, allowed, probes::adt_const_params::AVAILABLE)
+            }
             UnstableFeature::assert_matches => {
                 unstable(self, &feature, allowed);
                 autocfg::emit_possibility("assert_matches_location, values(\"root\", \"module\")");
@@ -401,6 +465,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::can_vector => {
                 unstable(ac, &feature, allowed);
                 has(ac, &feature, allowed, probes::can_vector::AVAILABLE)
+            }
+            UnstableFeature::doc_notable_trait => {
+                unstable(ac, &feature, allowed);
+                has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
                 unstable(self, &feature, allowed);
@@ -431,6 +499,10 @@ impl Nightly for AutoCfg {
                     probes::proc_macro_diagnostic::AVAILABLE,
                 )
             }
+            UnstableFeature::strip_circumfix => {
+                unstable(ac, &feature, allowed);
+                has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
+            }
             UnstableFeature::try_trait_v2 => {
                 unstable(self, &feature, allowed);
                 has(ac, &feature, allowed, probes::try_trait_v2::AVAILABLE)
@@ -443,6 +515,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::try_trait_v2_residual::AVAILABLE,
                 )
+            }
+            UnstableFeature::unsized_const_params => {
+                unstable(ac, &feature, allowed);
+                has(ac, &feature, allowed, probes::unsized_const_params::AVAILABLE)
             }
             UnstableFeature::write_all_vectored => {
                 unstable(ac, &feature, allowed);
