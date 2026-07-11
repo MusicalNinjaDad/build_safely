@@ -233,18 +233,28 @@ mod probes {
     }
 
     /// Register `#[cfg(has_feature)]` & run a default probe
-    pub fn unstable(ac: &AutoCfg, feature: &UnstableFeature, allowed: bool) -> bool {
+    pub fn unstable(
+        ac: &AutoCfg,
+        feature: &UnstableFeature,
+        allowed: bool,
+        extra_lines: Option<&str>,
+    ) -> bool {
         let cfg = format!("unstable_{feature}");
         autocfg::emit_possibility(&cfg);
 
-        let code = format!(
+        let mut code = format!(
             r#"
 #![deny(stable_features)]
 #![feature({feature})]
 #![allow(unused)]
 "#
         );
-        
+        if let Some(extra_lines) = extra_lines {
+            code.push('\n');
+            code.push_str(extra_lines);
+            code.push('\n');
+        }
+
         if allowed && ac.probe_raw(&code).is_ok() {
             autocfg::emit(&cfg);
             true
@@ -442,11 +452,11 @@ impl Nightly for AutoCfg {
         let allowed = allowed_features.includes(&feature);
         match feature {
             UnstableFeature::adt_const_params => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::adt_const_params::AVAILABLE)
             }
             UnstableFeature::assert_matches => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 autocfg::emit_possibility("assert_matches_location, values(\"root\", \"module\")");
                 if self
                     .probe_raw(&make_probe(&feature, allowed, probes::assert_matches::ROOT))
@@ -460,19 +470,19 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::assert_matches::AVAILABLE)
             }
             UnstableFeature::bool_to_result => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::bool_to_result::AVAILABLE)
             }
             UnstableFeature::can_vector => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::can_vector::AVAILABLE)
             }
             UnstableFeature::doc_notable_trait => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -481,7 +491,7 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::never_type => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
             }
             UnstableFeature::proc_macro_diagnostic => {
@@ -501,15 +511,15 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::strip_circumfix => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
             }
             UnstableFeature::try_trait_v2 => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::try_trait_v2::AVAILABLE)
             }
             UnstableFeature::try_trait_v2_residual => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -518,7 +528,12 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::unsized_const_params => {
-                unstable(ac, &feature, allowed);
+                let extra_lines = if unstable(ac, &UnstableFeature::adt_const_params, true, None) {
+                    Some("#![feature(adt_const_params)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
                 has(
                     ac,
                     &feature,
@@ -527,11 +542,11 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::write_all_vectored => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::write_all_vectored::AVAILABLE)
             }
             UnstableFeature::OtherFeature(_) => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 false
             }
         }
