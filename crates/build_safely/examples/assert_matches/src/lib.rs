@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 #[cfg(has_assert_matches)]
-mod tests {
+mod has {
     #[cfg(assert_matches_location = "root")]
     use std::assert_matches;
 
@@ -17,7 +17,7 @@ mod tests {
 
 #[cfg(test)]
 #[cfg(not(has_assert_matches))]
-mod tests {
+mod has_not {
     #[test]
     fn has_not() {
         assert_eq!(Some(5), Some(5));

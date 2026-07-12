@@ -8,7 +8,10 @@
 //! In such cases, the "has" test will run even with empty allow-features.
 
 use std::{
-    fs::{self, File}, io::Write, path::{Path, PathBuf}, process::{Command, Output},
+    fs::{self, File},
+    io::Write,
+    path::{Path, PathBuf},
+    process::{Command, Output},
 };
 
 use dircpy::copy_dir;
@@ -107,11 +110,26 @@ fn config_dir(#[default(Vec::new())] allowed_features: Vec<&'static str>) -> Tem
 
 #[rstest]
 fn test_examples(
-     #[files("*")] #[base_dir = "examples"] example: PathBuf
+    #[files("*")]
+    #[base_dir = "examples"]
+    example: PathBuf,
+    #[values(None, Some("allowed"))] config: Option<&str>,
 ) {
-    let output = Command::new("cargo").arg("test").current_dir(&example).output().unwrap();
+    let mut test = Command::new("cargo");
+    test.arg("test").current_dir(&example);
+    match config {
+        None => {}
+        Some(config) => {
+            test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+            dbg!(&test);
+        }
+    };
+    let output = test.output().unwrap();
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("test has::"), "incorrect tests run: {stdout}");
+    assert!(
+        stdout.contains("test has::"),
+        "incorrect tests run: {stdout}"
+    );
 }
 
 // Test 1: Run with NO features allowed
