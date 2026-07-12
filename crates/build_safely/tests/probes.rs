@@ -16,6 +16,7 @@ struct Setup {
 #[allow(non_camel_case_types)]
 enum Channel {
     stable,
+    beta,
     nightly,
 }
 
@@ -47,7 +48,14 @@ mod unstable {
         config_dir: None,
         channel: stable,
         suffix: None,
-        has: false
+        has: false,
+    };
+
+    const BETA: Setup = Setup {
+        config_dir: None,
+        channel: beta,
+        suffix: None,
+        has: false,
     };
 
     #[rstest]
@@ -61,7 +69,7 @@ mod unstable {
         #[dirs]
         #[base_dir = "examples/unstable"]
         example: PathBuf,
-        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE)] setup: Setup,
+        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
     ) {
         let Setup {
             config_dir,
@@ -77,7 +85,9 @@ mod unstable {
         };
 
         let mut test = Command::new("cargo");
-        test.args([&toolchain, "test"]).current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+        test.args([&toolchain, "test"])
+            .current_dir(&example)
+            .env("RUSTC_BOOTSTRAP", "0");
         match config_dir {
             None => {}
             Some(config) => {
