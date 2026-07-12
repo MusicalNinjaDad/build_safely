@@ -25,7 +25,7 @@ mod has {
 
     #[test]
     fn has() {
-        let mut counter = Counter::<{Increment(2)}>(0);
+        let mut counter = Counter::<{ Increment(2) }>(0);
         counter.inc();
         assert_eq!(counter.0, 2)
     }
