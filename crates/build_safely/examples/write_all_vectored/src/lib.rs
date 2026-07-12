@@ -3,7 +3,7 @@
 #[cfg(test)]
 #[cfg(has_write_all_vectored)]
 mod tests {
-    use std::io::{empty, Write, IoSlice};
+    use std::io::{IoSlice, Write, empty};
 
     #[test]
     fn has() {
