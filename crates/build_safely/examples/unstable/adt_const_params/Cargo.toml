@@ -8,4 +8,5 @@ rust-version = "1.85.1"
 [lib]
 
 [build-dependencies]
-build_safely.path = "../.."
+build_safely.workspace = true
+

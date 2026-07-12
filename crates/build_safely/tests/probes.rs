@@ -109,11 +109,11 @@ fn config_dir(#[default(Vec::new())] allowed_features: Vec<&'static str>) -> Tem
 }
 
 #[rstest]
-fn test_examples(
+fn test_unstable(
     #[files("*")]
-    #[base_dir = "examples"]
+    #[base_dir = "examples/unstable"]
     example: PathBuf,
-    #[values(None, Some("allowed"))] config: Option<&str>,
+    #[values(None, Some("allowed"), Some("forbidden"))] config: Option<&str>,
 ) {
     let mut test = Command::new("cargo");
     test.arg("test").current_dir(&example);
@@ -121,15 +121,20 @@ fn test_examples(
         None => {}
         Some(config) => {
             test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
-            dbg!(&test);
         }
     };
     let output = test.output().unwrap();
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(
-        stdout.contains("test has::"),
-        "incorrect tests run: {stdout}"
-    );
+    match config {
+        Some("forbidden") => assert!(
+            stdout.contains("test has_not::"),
+            "incorrect tests run: {stdout}"
+        ),
+        _ => assert!(
+            stdout.contains("test has::"),
+            "incorrect tests run: {stdout}"
+        ),
+    };
 }
 
 // Test 1: Run with NO features allowed
