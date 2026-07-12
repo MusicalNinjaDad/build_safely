@@ -619,10 +619,12 @@ pub fn cargo_allowed_features() -> Result<AllowedFeatures> {
     _cargo_allowed_features(cwd)
 }
 
-fn _cargo_allowed_features<P: AsRef<Path>>(current_dir: Option<P>) -> Result<AllowedFeatures> {
+fn _cargo_allowed_features<P: AsRef<Path>+Debug>(current_dir: Option<P>) -> Result<AllowedFeatures> {
     if !cargo_unstable()? {
         // show in `cargo build -vv`
         dbg!("cargo won't accept `-Z` - so we're on a not-unstable toolchain");
+        // TODO delete later
+        dbg!(current_dir);
 
         let allowed_features = AllowedFeatures(_AllowedFeatures::None);
 
