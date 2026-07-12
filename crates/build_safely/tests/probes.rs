@@ -1,23 +1,11 @@
 use std::{path::PathBuf, process::Command};
 
-use derive_more::Display;
 use rstest::*;
-
-use Channel::*;
 
 struct Setup {
     config_dir: Option<&'static str>,
-    channel: Channel,
-    suffix: Option<&'static str>,
+    channel_override: Option<&'static str>,
     has: bool,
-}
-
-#[derive(Display)]
-#[allow(non_camel_case_types)]
-enum Channel {
-    stable,
-    beta,
-    nightly,
 }
 
 mod unstable {
@@ -25,36 +13,31 @@ mod unstable {
 
     const NIGHTLY: Setup = Setup {
         config_dir: None,
-        channel: nightly,
-        suffix: None,
+        channel_override: Some("+nightly"),
         has: true,
     };
 
     const NIGHTLY_ALLOWED: Setup = Setup {
         config_dir: Some("allowed"),
-        channel: nightly,
-        suffix: None,
+        channel_override: Some("+nightly"),
         has: true,
     };
 
     const NIGHTLY_FORBIDDEN: Setup = Setup {
         config_dir: Some("forbidden"),
-        channel: nightly,
-        suffix: None,
+        channel_override: Some("+nightly"),
         has: false,
     };
 
     const STABLE: Setup = Setup {
         config_dir: None,
-        channel: stable,
-        suffix: None,
+        channel_override: Some("+stable"),
         has: false,
     };
 
     const BETA: Setup = Setup {
         config_dir: None,
-        channel: beta,
-        suffix: None,
+        channel_override: Some("+beta"),
         has: false,
     };
 
@@ -73,19 +56,15 @@ mod unstable {
     ) {
         let Setup {
             config_dir,
-            channel,
-            suffix,
+            channel_override,
             has,
         } = setup;
 
-        let toolchain = if let Some(suffix) = suffix {
-            format!("+{channel}{suffix}")
-        } else {
-            format!("+{channel}")
-        };
-
         let mut test = Command::new("cargo");
-        test.args([&toolchain, "test"])
+        if let Some(channel) = channel_override {
+            test.arg(channel);
+        };
+        test.arg("test")
             .current_dir(&example)
             .env("RUSTC_BOOTSTRAP", "0");
         match config_dir {
@@ -96,16 +75,17 @@ mod unstable {
         };
         let output = test.output().unwrap();
         let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
 
         if has {
             assert!(
                 stdout.contains("test has::"),
-                "incorrect tests run: {stdout}"
+                "incorrect tests run: {stdout} {stderr}"
             );
         } else {
             assert!(
                 stdout.contains("test has_not::"),
-                "incorrect tests run: {stdout}"
+                "incorrect tests run: {stdout} {stderr}"
             );
         };
     }
