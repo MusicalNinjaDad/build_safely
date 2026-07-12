@@ -8,5 +8,4 @@ rust-version = "1.85.1"
 [lib]
 
 [build-dependencies]
-autocfg = "1.5.1"
 build_safely.path = "../.."
