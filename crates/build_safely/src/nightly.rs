@@ -371,9 +371,6 @@ use std::ops::Residual;
 #![allow(stable_features)]
 #![feature(adt_const_params)]
 struct Foo<const N: &'static str>;
-fn main() {
-    let _: Foo<"test">;
-}
 "#;
     }
 
