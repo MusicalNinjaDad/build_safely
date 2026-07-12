@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 #[cfg(has_adt_const_params)]
-mod tests {
+mod has {
     #[test]
     fn has() {
         struct Foo<const N: usize>;
@@ -12,7 +12,7 @@ mod tests {
 
 #[cfg(test)]
 #[cfg(not(has_adt_const_params))]
-mod tests {
+mod has_not {
     #[test]
     fn has_not() {
         assert_eq!(5, 5);

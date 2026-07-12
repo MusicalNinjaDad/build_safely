@@ -18,5 +18,6 @@ derive_more.workspace = true
 indexmap.workspace = true
 
 [dev-dependencies]
+dircpy.workspace = true
 rstest.workspace = true
 tempfile.workspace = true
