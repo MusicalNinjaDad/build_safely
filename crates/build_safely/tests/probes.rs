@@ -43,6 +43,13 @@ mod unstable {
         has: false,
     };
 
+    const STABLE: Setup = Setup {
+        config_dir: None,
+        channel: stable,
+        suffix: None,
+        has: false
+    };
+
     #[rstest]
     /// Runs the tests for each example under `examples/unstable`
     ///
@@ -54,7 +61,7 @@ mod unstable {
         #[dirs]
         #[base_dir = "examples/unstable"]
         example: PathBuf,
-        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN)] setup: Setup,
+        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE)] setup: Setup,
     ) {
         let Setup {
             config_dir,
@@ -70,7 +77,7 @@ mod unstable {
         };
 
         let mut test = Command::new("cargo");
-        test.args([&toolchain, "test"]).current_dir(&example);
+        test.args([&toolchain, "test"]).current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
         match config_dir {
             None => {}
             Some(config) => {
