@@ -6,7 +6,7 @@ use std::marker::ConstParamTy;
 
 #[cfg(has_adt_const_params)]
 #[derive(ConstParamTy, PartialEq, Eq)]
-pub struct Increment(i32);
+struct Increment(i32);
 
 #[cfg(has_adt_const_params)]
 struct Counter<const INC: Increment>(i32);

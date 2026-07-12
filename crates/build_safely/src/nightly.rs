@@ -266,10 +266,10 @@ mod probes {
 
     pub mod adt_const_params {
         pub const AVAILABLE: &str = r#"
-struct Foo<const N: usize>;
-fn main() {
-    let _: Foo<5>;
-}
+use std::marker::ConstParamTy;
+#[derive(ConstParamTy, PartialEq, Eq)]
+struct Increment(i32);
+struct Counter<const INC: Increment>(i32);
 "#;
     }
 
