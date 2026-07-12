@@ -105,26 +105,13 @@ fn config_dir(#[default(Vec::new())] allowed_features: Vec<&'static str>) -> Tem
     temp_dir
 }
 
-/// Create a TempDir with the relevant example crate, optionally limiting `allow-features` via
-/// `.cargo/config.toml`
-#[track_caller]
-fn copy_example(example: PathBuf, allow_features: Option<&[&str]>) -> TempDir {
-    let tempdir = TempDir::new().unwrap();
-    copy_dir(example, tempdir.path()).unwrap();
-    tempdir
-}
-
 #[rstest]
 fn test_examples(
      #[files("*")] #[base_dir = "examples"] example: PathBuf
 ) {
-    let dir = copy_example(example, None);
-    let output = Command::new("cargo").arg("test").current_dir(&dir).output().unwrap();
+    let output = Command::new("cargo").arg("test").current_dir(&example).output().unwrap();
     let stdout = String::from_utf8_lossy(&output.stdout);
-    dbg!(&stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    dbg!(&stderr);
-    assert!(stdout.contains("test has::"));
+    assert!(stdout.contains("test has::"), "incorrect tests run: {stdout}");
 }
 
 // Test 1: Run with NO features allowed
