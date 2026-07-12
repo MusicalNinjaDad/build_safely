@@ -1,4 +1,3 @@
-use autocfg::AutoCfg;
 use build_safely::prelude::*;
 
 fn main() -> Result<()> {
