@@ -65,7 +65,7 @@ fn create_config(dir: &Path, allowed_features: &[&str]) -> std::io::Result<()> {
     } else {
         writeln!(file, "unstable.allow-features = [")?;
         for feature in allowed_features {
-            writeln!(file, "    \"{feature}\",")?;
+            writeln!(file, "\"{feature}\",")?;
         }
         writeln!(file, "]")?;
     }
@@ -74,6 +74,8 @@ fn create_config(dir: &Path, allowed_features: &[&str]) -> std::io::Result<()> {
 }
 
 /// Run cargo test for a specific package from a directory and return the output
+// TODO rename `package` to express actual meaning or remove if possible - is it "feature"?, it shouldn't even be required if only copying the one example to a tempdir
+// TODO return Result<Output> directly
 fn run_cargo_test(config_dir: &Path, package: &str) -> String {
     let output = Command::new("cargo")
         .arg("test")
@@ -81,6 +83,7 @@ fn run_cargo_test(config_dir: &Path, package: &str) -> String {
         .arg(package)
         .arg("--")
         .arg("--nocapture")
+        //TODO: use correct variable BUILD_SAFELY_CARGO_CONFIG_DIR
         .env("CARGO_CONFIG_DIR", config_dir)
         .output()
         .expect("Failed to run cargo test");
@@ -91,15 +94,18 @@ fn run_cargo_test(config_dir: &Path, package: &str) -> String {
 
 /// Check if any "has" test ran in the output
 fn has_test_ran(output: &str) -> bool {
+    // TODO this looks really flaky - a single check should be sufficient if there is a good naming convention in place.
     output.contains("test has::")
         || output.contains("test has_never_type::")
         || output.contains("test has_try_trait_v2::")
         || output.contains("test has_try_trait_v2_residual::")
+        // TODO this will pass for "test tests::has_not" - BUG
         || output.contains("test tests::has")
 }
 
 /// Check if any "has_not" test ran in the output
 fn has_not_test_ran(output: &str) -> bool {
+    //TODO Stick to a good naming convention that allows for a simple and secure check in this and has_test_ran
     output.contains("test has_not::") || output.contains("test tests::has_not")
 }
 
@@ -108,6 +114,13 @@ fn any_test_ran(output: &str) -> bool {
     has_test_ran(output) || has_not_test_ran(output)
 }
 
+
+// TODO add rstest to the dev dependencies and read the top level doc comment from the src/lib.rs to understand how to use parametrization and fixtures
+// TODO use crate rstest & parametrizse with #[case] instead of for loop and println!. Rstest will list each test as an independant test case with a clear result for each.
+// TODO Test 1 & Test 2 This should be independent tests with good names. Add a 3rd test with _all_ features allowed (no config.toml)
+// TODO make use of rstest fixtures to create tempdir with .cargo/config.toml
+// TODO prefer a simple .unwrap() to check for errors - separating the tests and parametrizing them provides all the context needed, unwrap then outputs the error details.
+// TODO prefer assert!(has_test_ran(...), custom message) to if else panic
 #[test]
 fn test_all_examples() {
     for (package_name, features) in EXAMPLES {
