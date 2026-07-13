@@ -1,7 +1,7 @@
-use std::{env, fs, path::PathBuf, process::Command};
+use std::{fs, path::PathBuf, process::Command};
 
 use rstest::*;
-use toml::{Table, Value};
+use toml::Table;
 
 struct Setup {
     config_dir: Option<&'static str>,
@@ -125,50 +125,11 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
-    let which_cargo = Command::new("which").arg("cargo").output().unwrap();
-    dbg!(which_cargo);
-
-    let mut _cargo_ver = Command::new("cargo");
-    match channel_override {
-        Some(channel) => {
-            _cargo_ver.arg(channel);
-        }
-        None => {
-            let toolchain = example.join("rust-toolchain.toml");
-            let contents = fs::read_to_string(toolchain).unwrap();
-            dbg!(&contents);
-            let parsed: Table = contents.parse().unwrap();
-            dbg!(&parsed);
-            let toolchain = parsed.get("toolchain").unwrap();
-            dbg!(&toolchain);
-            let Value::Table(toolchain) = toolchain else {
-                panic!("whhhhaaaaaa")
-            };
-            dbg!(&toolchain);
-            let channel = toolchain.get("channel").unwrap();
-            dbg!(&channel);
-            _cargo_ver.env("RUSTUP_TOOLCHAIN", channel.as_str().unwrap());
-        }
-    }
-    _cargo_ver.args(["-V"]);
-    _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
-    if let Some(config) = config_dir {
-        _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
-    };
-    dbg!(&_cargo_ver);
-    let _cargo_ver_output = _cargo_ver.output().unwrap();
-    dbg!(_cargo_ver_output);
-
     let mut test = Command::new("cargo");
     test.args(["test", "-vv"]);
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    for (key, _) in env::vars() {
-        if key == "CARGO" || key.starts_with("CARGO_MANIFEST") || key.starts_with("CARGO_PKG") {
-            test.env_remove(key);
-        }
-    }
     test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0").env(
         "RUSTUP_TOOLCHAIN",
         match channel_override {
@@ -188,8 +149,6 @@ fn runtest(example: PathBuf, setup: Setup) {
             }
         },
     );
-
-    dbg!(&test);
 
     let output = test.output().unwrap();
     let stdout = String::from_utf8_lossy(&output.stdout);
