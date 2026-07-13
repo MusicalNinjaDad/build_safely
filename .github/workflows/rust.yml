@@ -9,6 +9,8 @@ on:
     - ".github/workflows/rust.yml"
   pull_request:
   workflow_call:
+  schedule:
+    - cron: '0 3 6 * *'
 
 env:
     CARGO_TERM_COLOR: always
@@ -80,3 +82,18 @@ jobs:
         tool: cargo-msrv
     - name: check MSRV
       run: cargo msrv verify
+
+  report:
+    permissions:
+      contents: read
+      issues: write
+    if: ${{ always() && github.event_name == 'schedule' && (needs.test.result == 'failure' || needs.lint.result == 'failure')}}
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.0.3
+    - name: Create issue on failure
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh issue create --title "Monthly tests failed" --body "Run ID: $GITHUB_RUN_ID" --assignee "MusicalNinjaDad"
