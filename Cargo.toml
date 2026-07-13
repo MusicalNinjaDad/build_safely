@@ -2,6 +2,7 @@
 members = [
     "crates/*",
     "crates/build_safely/examples/unstable/*",
+    "crates/build_safely/examples/beta/*",
     "crates/build_safely/examples/stable/*",
 ]
 resolver = "3"

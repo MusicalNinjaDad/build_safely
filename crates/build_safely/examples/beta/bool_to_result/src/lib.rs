@@ -7,7 +7,7 @@ mod has {
     #[test]
     fn has() {
         assert_eq!(true.ok_or(0), Ok(()));
-        assert_eq!(false.ok_or_else(|| 1+1), Err(2));
+        assert_eq!(false.ok_or_else(|| 1 + 1), Err(2));
     }
 }
 

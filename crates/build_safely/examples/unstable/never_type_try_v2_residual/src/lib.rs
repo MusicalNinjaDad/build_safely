@@ -15,10 +15,10 @@ mod has {
             panic!()
         }
         let _: fn() -> ! = diverges;
-        
+
         // Try trait v2
         let _: ControlFlow<()> = ControlFlow::Continue(());
-        
+
         // Try trait v2 residual
         use std::ops::Residual;
         fn _test<T: Residual<()>>(_: T) {}
