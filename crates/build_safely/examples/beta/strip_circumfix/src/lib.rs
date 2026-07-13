@@ -16,6 +16,5 @@ mod has_not {
     /// let s = "foo";
     /// let _ = s.strip_circumfix("f", "o");
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
