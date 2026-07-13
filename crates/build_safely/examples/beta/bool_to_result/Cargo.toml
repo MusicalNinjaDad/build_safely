@@ -1,0 +1,10 @@
+[package]
+name = "build_safely-bool_to_result_fixture"
+version = "0.0.0"
+edition.workspace = true
+publish = false
+
+[lib]
+
+[build-dependencies]
+build_safely.workspace = true

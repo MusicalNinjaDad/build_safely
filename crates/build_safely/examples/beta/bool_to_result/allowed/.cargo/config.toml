@@ -1,0 +1,1 @@
+unstable.allow-features = ["bool_to_result"]

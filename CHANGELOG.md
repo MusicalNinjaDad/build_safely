@@ -1,5 +1,12 @@
 # build_safely CHANGELOG
 
+## [v0.5.3]
+
+### New features
+
+- Added `UnstableFeature::{adt_const_params, doc_notable_trait, strip_circumfix, unsized_const_params}`
+- Added test suite validating all `UnstableFeature`s across multiple versions
+
 ## [v0.5.2]
 
 ### New features

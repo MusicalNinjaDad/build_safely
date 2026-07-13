@@ -103,6 +103,10 @@ use probes::{has, make_probe, unstable};
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
 #[derive(Debug, Clone, PartialEq, Eq, Display)]
 pub enum UnstableFeature {
+    /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
+    /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
+    /// - `#[cfg(has_adt_const_params)]`
+    adt_const_params,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_assert_matches, feature(assert_matches))]`
     /// - `#[cfg(has_assert_matches)]`
@@ -126,6 +130,10 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_can_vector)]`
     /// - this gates [`std::io::Read::is_read_vectored`] & [`std::io::Write::is_write_vectored`]
     can_vector,
+    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
+    /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
+    /// - `#[cfg(has_doc_notable_trait)]`
+    doc_notable_trait,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
@@ -138,6 +146,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
     proc_macro_diagnostic,
+    /// ## Provides cfg flags for feature [`strip_circumfix`](https://github.com/rust-lang/rust/issues/147946)
+    /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
+    /// - `#[cfg(has_strip_circumfix)]`
+    strip_circumfix,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_try_trait_v2, feature(try_trait_v2))]`
     /// - `#[cfg(has_try_trait_v2)]`
@@ -146,6 +158,12 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_try_trait_v2_residual, feature(try_trait_v2_residual))]`
     /// - `#[cfg(has_try_trait_v2_residual)]`
     try_trait_v2_residual,
+    /// ## Provides cfg flags for feature [`unsized_const_params`](https://github.com/rust-lang/rust/issues/128028)
+    /// - `#![cfg_attr(unstable_unsized_const_params, feature(unsized_const_params))]`
+    /// - `#[cfg(has_unsized_const_params)]`
+    /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
+    /// - Note: `unsized_const_params` requires `adt_const_params` to be enabled
+    unsized_const_params,
     /// ## Provides cfg flags for feature [`write_all_vectored`](https://github.com/rust-lang/rust/issues/70436)
     /// - `#![cfg_attr(unstable_write_all_vectored, feature(write_all_vectored))]`
     /// - `#[cfg(has_write_all_vectored)]`
@@ -159,14 +177,18 @@ impl UnstableFeature {
     // This is not pub or trait From to avoid risk of typos
     fn from(feature: &str) -> Self {
         match feature {
+            "adt_const_params" => Self::adt_const_params,
             "assert_matches" => Self::assert_matches,
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
+            "doc_notable_trait" => Self::doc_notable_trait,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
+            "strip_circumfix" => Self::strip_circumfix,
             "try_trait_v2" => Self::try_trait_v2,
             "try_trait_v2_residual" => Self::try_trait_v2_residual,
+            "unsized_const_params" => Self::unsized_const_params,
             "write_all_vectored" => Self::write_all_vectored,
             _ => Self::OtherFeature(feature.to_string()),
         }
@@ -212,23 +234,43 @@ mod probes {
     }
 
     /// Register `#[cfg(has_feature)]` & run a default probe
-    pub fn unstable(ac: &AutoCfg, feature: &UnstableFeature, allowed: bool) {
+    pub fn unstable(
+        ac: &AutoCfg,
+        feature: &UnstableFeature,
+        allowed: bool,
+        extra_lines: Option<&str>,
+    ) -> bool {
         let cfg = format!("unstable_{feature}");
         autocfg::emit_possibility(&cfg);
 
-        if allowed {
-            let code = format!(
-                r#"
+        let mut code = format!(
+            r#"
 #![deny(stable_features)]
 #![feature({feature})]
 #![allow(unused)]
 "#
-            );
-
-            if ac.probe_raw(&code).is_ok() {
-                autocfg::emit(&cfg);
-            }
+        );
+        if let Some(extra_lines) = extra_lines {
+            code.push('\n');
+            code.push_str(extra_lines);
+            code.push('\n');
         }
+
+        if allowed && ac.probe_raw(&code).is_ok() {
+            autocfg::emit(&cfg);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub mod adt_const_params {
+        pub const AVAILABLE: &str = r#"
+use std::marker::ConstParamTy;
+#[derive(ConstParamTy, PartialEq, Eq)]
+struct Increment(i32);
+struct Counter<const INC: Increment>(i32);
+"#;
     }
 
     pub mod assert_matches {
@@ -271,6 +313,13 @@ fn main() {
 "#;
     }
 
+    pub mod doc_notable_trait {
+        pub const AVAILABLE: &str = r#"
+#[doc(notable_trait)]
+trait Foo {}
+"#;
+    }
+
     pub mod iterator_try_collect {
         // vec! not array: https://internals.rust-lang.org/t/code-compiles-on-playground-but-fails-when-passed-via-stdin-to-rustc/24393
         pub const AVAILABLE: &str = r#"
@@ -287,16 +336,18 @@ type Bang = !;
     }
 
     pub mod proc_macro_diagnostic {
-        /// Special probe as feature only available in proc_macro context
-        pub const UNSTABLE: &str = r#"
-#![deny(stable_features)]
-#![feature(proc_macro_diagnostic)]
-#![allow(unused)]
-extern crate proc_macro;
-"#;
         pub const AVAILABLE: &str = r#"
 extern crate proc_macro;
 use proc_macro::Diagnostic;      
+"#;
+    }
+
+    pub mod strip_circumfix {
+        pub const AVAILABLE: &str = r#"
+fn main() {
+    let s = "foo";
+    let _ = s.strip_circumfix("f", "o");
+}
 "#;
     }
 
@@ -309,6 +360,17 @@ use std::ops::Try;
     pub mod try_trait_v2_residual {
         pub const AVAILABLE: &str = r#"
 use std::ops::Residual;
+"#;
+    }
+
+    pub mod unsized_const_params {
+        // requires adt_const_params
+        // possible duplication of allow(stable_features) is OK as duplication check is a
+        // clippy lint - and we are just compiling the probe with rustc
+        pub const AVAILABLE: &str = r#"
+#![allow(stable_features)]
+#![feature(adt_const_params)]
+struct Foo<const N: &'static str>;
 "#;
     }
 
@@ -380,8 +442,12 @@ impl Nightly for AutoCfg {
         let ac = self;
         let allowed = allowed_features.includes(&feature);
         match feature {
+            UnstableFeature::adt_const_params => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::adt_const_params::AVAILABLE)
+            }
             UnstableFeature::assert_matches => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 autocfg::emit_possibility("assert_matches_location, values(\"root\", \"module\")");
                 if self
                     .probe_raw(&make_probe(&feature, allowed, probes::assert_matches::ROOT))
@@ -395,15 +461,19 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::assert_matches::AVAILABLE)
             }
             UnstableFeature::bool_to_result => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::bool_to_result::AVAILABLE)
             }
             UnstableFeature::can_vector => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::can_vector::AVAILABLE)
             }
+            UnstableFeature::doc_notable_trait => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
+            }
             UnstableFeature::iterator_try_collect => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -412,18 +482,11 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::never_type => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
             }
             UnstableFeature::proc_macro_diagnostic => {
-                autocfg::emit_possibility("unstable_proc_macro_diagnostic");
-                if allowed
-                    && self
-                        .probe_raw(probes::proc_macro_diagnostic::UNSTABLE)
-                        .is_ok()
-                {
-                    autocfg::emit("unstable_proc_macro_diagnostic");
-                }
+                unstable(ac, &feature, allowed, Some("extern crate proc_macro;"));
                 has(
                     ac,
                     &feature,
@@ -431,12 +494,16 @@ impl Nightly for AutoCfg {
                     probes::proc_macro_diagnostic::AVAILABLE,
                 )
             }
+            UnstableFeature::strip_circumfix => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
+            }
             UnstableFeature::try_trait_v2 => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::try_trait_v2::AVAILABLE)
             }
             UnstableFeature::try_trait_v2_residual => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -444,12 +511,31 @@ impl Nightly for AutoCfg {
                     probes::try_trait_v2_residual::AVAILABLE,
                 )
             }
+            UnstableFeature::unsized_const_params => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::adt_const_params,
+                    allowed_features.includes(&UnstableFeature::adt_const_params),
+                    None,
+                ) {
+                    Some("#![feature(adt_const_params)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::unsized_const_params::AVAILABLE,
+                )
+            }
             UnstableFeature::write_all_vectored => {
-                unstable(ac, &feature, allowed);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::write_all_vectored::AVAILABLE)
             }
             UnstableFeature::OtherFeature(_) => {
-                unstable(self, &feature, allowed);
+                unstable(self, &feature, allowed, None);
                 false
             }
         }
@@ -480,17 +566,17 @@ impl Nightly for AutoCfg {
 /// Check whether cargo will accept unstable flags. You probably never need to run this
 /// yourself and should prefer to simply call [`cargo_allowed_features`].
 pub fn cargo_unstable() -> Result<bool> {
-    Ok(Command::new(get_var("CARGO")?)
-        .args([
-            "-Zunstable-options",
-            "--config",
-            "unstable.allow-features=[\"unstable-options\"]",
-            "help",
-        ])
+    let mut cmd = Command::new(get_var("CARGO")?);
+    cmd.args([
+        "-Zunstable-options",
+        "--config",
+        "unstable.allow-features=[\"unstable-options\"]",
+        "help",
+    ]);
+    let output = cmd
         .output()
-        .map_err(|err| BuildError::Other(err.to_string()))?
-        .status
-        .success())
+        .map_err(|err| BuildError::Other(err.to_string()))?;
+    Ok(output.status.success())
 }
 
 fn cargo_config<P: AsRef<Path>>(
@@ -538,7 +624,9 @@ pub fn cargo_allowed_features() -> Result<AllowedFeatures> {
     _cargo_allowed_features(cwd)
 }
 
-fn _cargo_allowed_features<P: AsRef<Path>>(current_dir: Option<P>) -> Result<AllowedFeatures> {
+fn _cargo_allowed_features<P: AsRef<Path> + Debug>(
+    current_dir: Option<P>,
+) -> Result<AllowedFeatures> {
     if !cargo_unstable()? {
         // show in `cargo build -vv`
         dbg!("cargo won't accept `-Z` - so we're on a not-unstable toolchain");

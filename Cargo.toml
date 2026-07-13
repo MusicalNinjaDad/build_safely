@@ -1,9 +1,14 @@
 [workspace]
-members = ["crates/*", "crates/build_safely/examples/*"]
+members = [
+    "crates/*",
+    "crates/build_safely/examples/unstable/*",
+    "crates/build_safely/examples/beta/*",
+    "crates/build_safely/examples/stable/*",
+]
 resolver = "3"
 
 [workspace.package]
-version = "0.5.2"
+version = "0.5.3"
 edition = "2024"
 readme = "README.md"
 description = "build script helpers for working with nightly"
@@ -21,4 +26,6 @@ build_safely = { version = "0.5.1", path = "crates/build_safely" }
 autocfg = "1.5.1"
 derive_more = { version = "2.1.1", features = ["display"] }
 indexmap = "2.14.0"
+rstest = "0.26.1"
 tempfile = "3.27.0"
+toml = "1.1.2"

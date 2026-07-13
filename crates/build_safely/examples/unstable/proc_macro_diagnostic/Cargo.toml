@@ -1,0 +1,10 @@
+[package]
+name = "build_safely-proc_macro_diagnostic_fixture"
+version = "0.0.0"
+edition.workspace = true
+publish = false
+
+[lib]
+
+[build-dependencies]
+build_safely.workspace = true
