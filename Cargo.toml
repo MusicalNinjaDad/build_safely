@@ -1,9 +1,5 @@
 [workspace]
-members = [
-    "crates/*",
-    "crates/build_safely/examples/unstable/*",
-    "crates/build_safely/examples/stable/*",
-]
+members = ["crates/*", "crates/build_safely/examples/unstable/*", "crates/build_safely/examples/stable/*"]
 resolver = "3"
 
 [workspace.package]
@@ -24,7 +20,6 @@ build_safely = { version = "0.5.1", path = "crates/build_safely" }
 
 autocfg = "1.5.1"
 derive_more = { version = "2.1.1", features = ["display"] }
-escargot = { version = "0.5.15", features = ["test_unstable"] }
 indexmap = "2.14.0"
 rstest = "0.26.1"
 tempfile = "3.27.0"
