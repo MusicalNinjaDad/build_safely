@@ -1,6 +1,6 @@
 #![cfg_attr(unstable_unsized_const_params, feature(unsized_const_params))]
 #![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]
-#![expect(incomplete_features)]
+#![cfg_attr(unstable_adt_const_params, expect(incomplete_features))]
 #![allow(unused)]
 
 use std::fmt::Display;
