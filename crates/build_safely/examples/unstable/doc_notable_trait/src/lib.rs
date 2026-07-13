@@ -16,6 +16,5 @@ mod has_not {
     /// #[doc(notable_trait)]
     /// trait Foo {}
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
