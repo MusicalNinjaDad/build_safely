@@ -19,4 +19,5 @@ indexmap.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true
-tempfile.workspace=true
+tempfile.workspace = true
+toml.workspace = true
