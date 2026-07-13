@@ -1,6 +1,7 @@
-use std::{env, path::PathBuf, process::Command};
+use std::{env, fs, path::PathBuf, process::Command};
 
 use rstest::*;
+use toml::{Table, Value};
 
 struct Setup {
     config_dir: Option<&'static str>,
@@ -124,26 +125,35 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
+    let channel_override = channel_override.map_or_else(
+        || {
+            let toolchain = example.join("rust-toolchain.toml");
+            let contents = fs::read_to_string(toolchain).unwrap();
+            dbg!(&contents);
+            let parsed: Table = contents.parse().unwrap();
+            dbg!(&parsed);
+            let toolchain = parsed.get("toolchain").unwrap();
+            dbg!(&toolchain);
+            let Value::Table(toolchain) = toolchain else {
+                panic!("whhhhaaaaaa")
+            };
+            dbg!(&toolchain);
+            let channel = toolchain.get("channel").unwrap();
+            dbg!(&channel);
+            format!("+{channel}")
+        },
+        ToString::to_string,
+    );
+
     let which_cargo = Command::new("which").arg("cargo").output().unwrap();
     dbg!(which_cargo);
 
-    let mut _cargo_ver = Command::new("sh");
-    for (key, _) in env::vars() {
-        if key.starts_with("CARGO") {
-            _cargo_ver.env_remove(key);
-        }
-    };
-    let mut _cargo_cmd = "export && cargo".to_string();
-    if let Some(channel) = channel_override {
-        _cargo_cmd.push(' ');
-        _cargo_cmd.push_str(channel);
-    }
+    let mut _cargo_ver = Command::new("cargo");
+    _cargo_ver.args([&channel_override, "-V"]);
     _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    _cargo_cmd.push_str(" -V");
-    _cargo_ver.args(["-c", &_cargo_cmd]);
     dbg!(&_cargo_ver);
     let _cargo_ver_output = _cargo_ver.output().unwrap();
     dbg!(_cargo_ver_output);
@@ -153,15 +163,12 @@ fn runtest(example: PathBuf, setup: Setup) {
         if key.starts_with("CARGO") {
             test.env_remove(key);
         }
-    };
-    if let Some(channel) = channel_override {
-        test.arg(channel);
-    };
+    }
     test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    test.args(["test", "-vv"]);
+    test.args([&channel_override, "test", "-vv"]);
     dbg!(&test);
 
     let output = test.output().unwrap();
