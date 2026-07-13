@@ -160,36 +160,38 @@ fn runtest(example: PathBuf, setup: Setup) {
     dbg!(_cargo_ver_output);
 
     let mut test = Command::new("cargo");
-    for (key, _) in env::vars() {
-        if key.starts_with("CARGO") {
-            test.env_remove(key);
-        }
-    }
-    test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+    test.args(["test", "-vv"]);
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    match channel_override {
-        Some(channel) => {
-            test.arg(channel);
+    for (key, _) in env::vars() {
+        if key == "CARGO" || key.starts_with("CARGO_MANIFEST") || key.starts_with("CARGO_PKG") {
+            test.env_remove(key);
         }
-        None => {
-            let toolchain = example.join("rust-toolchain.toml");
-            let contents = fs::read_to_string(toolchain).unwrap();
-            dbg!(&contents);
-            let parsed: Table = contents.parse().unwrap();
-            dbg!(&parsed);
-            let toolchain = parsed.get("toolchain").unwrap();
-            dbg!(&toolchain);
-            let Value::Table(toolchain) = toolchain else {
-                panic!("whhhhaaaaaa")
-            };
-            dbg!(&toolchain);
-            let channel = toolchain.get("channel").unwrap();
-            dbg!(&channel);
-            test.env("RUSTUP_TOOLCHAIN", channel.as_str().unwrap());
-        }
-    }
+    };
+    test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0").env(
+        "RUSTUP_TOOLCHAIN",
+        match channel_override {
+            Some(channel) => channel.to_string(),
+            None => {
+                let toolchain = example.join("rust-toolchain.toml");
+                let contents = fs::read_to_string(toolchain).unwrap();
+                dbg!(&contents);
+                let parsed: Table = contents.parse().unwrap();
+                dbg!(&parsed);
+                let toolchain = parsed["toolchain"].clone();
+                dbg!(&toolchain);
+                let Value::Table(toolchain) = toolchain else {
+                    panic!("whhhhaaaaaa")
+                };
+                dbg!(&toolchain);
+                let channel = toolchain["channel"].clone();
+                dbg!(&channel);
+                channel.as_str().unwrap().to_string()
+            }
+        },
+    );
+
     dbg!(&test);
 
     let output = test.output().unwrap();
