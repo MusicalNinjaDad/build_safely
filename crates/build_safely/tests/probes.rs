@@ -131,6 +131,7 @@ fn runtest(example: PathBuf, setup: Setup) {
     if let Some(channel) = channel_override {
         _cargo_ver.arg(channel);
     }
+    _cargo_ver.env_remove("CARGO");
     _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
