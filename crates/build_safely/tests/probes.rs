@@ -110,7 +110,8 @@ mod stable {
         #[dirs]
         #[base_dir = "examples/stable"]
         example: PathBuf,
-        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)] setup: Setup,
+        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
+        setup: Setup,
     ) {
         runtest(example, setup);
     }
@@ -123,21 +124,33 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
+    let which_cargo = Command::new("which").arg("cargo").output().unwrap();
+    dbg!(which_cargo);
+
+    let mut _cargo_ver = Command::new("cargo");
+    if let Some(channel) = channel_override {
+        _cargo_ver.arg(channel);
+    }
+    _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+    if let Some(config) = config_dir {
+        _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+    };
+    _cargo_ver.args(["-V"]);
+    dbg!(&_cargo_ver);
+    let _cargo_ver_output = _cargo_ver.output().unwrap();
+    dbg!(_cargo_ver_output);
+
     let mut test = Command::new("cargo");
     if let Some(channel) = channel_override {
         test.arg(channel);
     };
-    test.arg("test")
-        .current_dir(&example)
-        .env("RUSTC_BOOTSTRAP", "0");
-    match config_dir {
-        None => {}
-        Some(config) => {
-            test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
-        }
+    test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+    if let Some(config) = config_dir {
+        test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    test.arg("-vv");
+    test.args(["test", "-vv"]);
     dbg!(&test);
+
     let output = test.output().unwrap();
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
