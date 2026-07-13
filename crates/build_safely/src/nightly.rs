@@ -561,10 +561,6 @@ impl Nightly for AutoCfg {
 /// Check whether cargo will accept unstable flags. You probably never need to run this
 /// yourself and should prefer to simply call [`cargo_allowed_features`].
 pub fn cargo_unstable() -> Result<bool> {
-    let pwd = Command::new("pwd").output()?;
-    dbg!(pwd);
-    let toolchains = Command::new("rustup").args(["toolchain", "list"]).output()?;
-    dbg!(toolchains);
     let mut cmd = Command::new(get_var("CARGO")?);
     cmd.args([
         "-Zunstable-options",
@@ -572,12 +568,9 @@ pub fn cargo_unstable() -> Result<bool> {
         "unstable.allow-features=[\"unstable-options\"]",
         "help",
     ]);
-    dbg!(&cmd);
     let output = cmd
         .output()
         .map_err(|err| BuildError::Other(err.to_string()))?;
-    // TODO remove
-    dbg!(&output);
     Ok(output.status.success())
 }
 
@@ -632,8 +625,6 @@ fn _cargo_allowed_features<P: AsRef<Path> + Debug>(
     if !cargo_unstable()? {
         // show in `cargo build -vv`
         dbg!("cargo won't accept `-Z` - so we're on a not-unstable toolchain");
-        // TODO delete later
-        dbg!(current_dir);
 
         let allowed_features = AllowedFeatures(_AllowedFeatures::None);
 
