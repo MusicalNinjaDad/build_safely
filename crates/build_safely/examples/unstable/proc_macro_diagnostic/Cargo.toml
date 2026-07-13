@@ -1,0 +1,11 @@
+[package]
+name = "build_safely-proc_macro_diagnostic_fixture"
+edition = "2024"
+version = "0.0.0"
+publish = false
+rust-version = "1.85.1"
+
+[lib]
+
+[build-dependencies]
+build_safely.workspace = true

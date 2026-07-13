@@ -1,0 +1,1 @@
+unstable.allow-features = ["proc_macro_diagnostic"]
