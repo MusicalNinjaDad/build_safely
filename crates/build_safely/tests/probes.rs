@@ -124,27 +124,47 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
-    let cargo_toml = example.join("Cargo.toml");
-    let test = escargot::CargoBuild::new();
-    let test = if let Some(channel_override) = channel_override {
-        test.arg(channel_override)
-    } else {
-        test
-    };
-    let test = if let Some(config_dir) = config_dir {
-        test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", config_dir)
-    } else {
-        test
-    };
-    let test = test
-        .env("RUSTC_BOOTSTRAP", "0")
-        .manifest_path(cargo_toml)
-        .tests();
-    dbg!(&test);
-    let tests = test.run_tests().unwrap();
-    for t in tests {
-        let r = t.unwrap().exec();
-        dbg!(r);
+    let which_cargo = Command::new("which").arg("cargo").output().unwrap();
+    dbg!(which_cargo);
+
+    let mut _cargo_ver = Command::new("cargo");
+    if let Some(channel) = channel_override {
+        _cargo_ver.arg(channel);
     }
-    assert!(false);
+    _cargo_ver.env_remove("CARGO");
+    _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+    if let Some(config) = config_dir {
+        _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+    };
+    _cargo_ver.args(["-V"]);
+    dbg!(&_cargo_ver);
+    let _cargo_ver_output = _cargo_ver.output().unwrap();
+    dbg!(_cargo_ver_output);
+
+    let mut test = Command::new("cargo");
+    if let Some(channel) = channel_override {
+        test.arg(channel);
+    };
+    test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
+    if let Some(config) = config_dir {
+        test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+    };
+    test.args(["test", "-vv"]);
+    dbg!(&test);
+
+    let output = test.output().unwrap();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    if has {
+        assert!(
+            stdout.contains("test has::"),
+            "incorrect tests run: {stdout} {stderr}"
+        );
+    } else {
+        assert!(
+            stdout.contains("test has_not::"),
+            "incorrect tests run: {stdout} {stderr}"
+        );
+    };
 }
