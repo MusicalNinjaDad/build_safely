@@ -5,20 +5,21 @@ extern crate proc_macro;
 
 #[cfg(has_proc_macro_diagnostic)]
 mod has {
-    use proc_macro::Diagnostic;
+    use proc_macro::{Diagnostic, Level};
 
     #[test]
     fn has() {
-        // This test just verifies that the Diagnostic type is available
-        // We can't really test proc_macro functionality in a test
+        let d = Diagnostic::new(Level::Warning, "beware");
+        assert!(matches!(d.level(), Level::Warning));
+        assert_eq!(d.message(), "beware");
     }
 }
 
 #[cfg(not(has_proc_macro_diagnostic))]
 mod has_not {
     /// ```compile_fail
-    /// use proc_macro::Diagnostic;
+    /// use proc_macro::{Diagnostic, Level};
+    /// let d = Diagnostic::new(Level::Warning, "beware");
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
