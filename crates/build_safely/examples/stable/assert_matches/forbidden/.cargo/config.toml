@@ -1,1 +1,1 @@
-unstable.allow-features = ["assert_matches"]
+unstable.allow-features = []
