@@ -126,7 +126,7 @@ fn runtest(example: PathBuf, setup: Setup) {
     } = setup;
 
     let mut test = Command::new("cargo");
-    test.args(["test", "-vv"]);
+    test.arg("test");
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
