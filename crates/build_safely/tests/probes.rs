@@ -125,8 +125,15 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
-    let channel_override = channel_override.map_or_else(
-        || {
+    let which_cargo = Command::new("which").arg("cargo").output().unwrap();
+    dbg!(which_cargo);
+
+    let mut _cargo_ver = Command::new("cargo");
+    match channel_override {
+        Some(channel) => {
+            _cargo_ver.arg(channel);
+        }
+        None => {
             let toolchain = example.join("rust-toolchain.toml");
             let contents = fs::read_to_string(toolchain).unwrap();
             dbg!(&contents);
@@ -140,16 +147,10 @@ fn runtest(example: PathBuf, setup: Setup) {
             dbg!(&toolchain);
             let channel = toolchain.get("channel").unwrap();
             dbg!(&channel);
-            format!("+{channel}")
-        },
-        ToString::to_string,
-    );
-
-    let which_cargo = Command::new("which").arg("cargo").output().unwrap();
-    dbg!(which_cargo);
-
-    let mut _cargo_ver = Command::new("cargo");
-    _cargo_ver.args([&channel_override, "-V"]);
+            _cargo_ver.env("RUSTUP_TOOLCHAIN", channel.as_str().unwrap());
+        }
+    }
+    _cargo_ver.args(["-V"]);
     _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
@@ -168,7 +169,27 @@ fn runtest(example: PathBuf, setup: Setup) {
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    test.args([&channel_override, "test", "-vv"]);
+    match channel_override {
+        Some(channel) => {
+            test.arg(channel);
+        }
+        None => {
+            let toolchain = example.join("rust-toolchain.toml");
+            let contents = fs::read_to_string(toolchain).unwrap();
+            dbg!(&contents);
+            let parsed: Table = contents.parse().unwrap();
+            dbg!(&parsed);
+            let toolchain = parsed.get("toolchain").unwrap();
+            dbg!(&toolchain);
+            let Value::Table(toolchain) = toolchain else {
+                panic!("whhhhaaaaaa")
+            };
+            dbg!(&toolchain);
+            let channel = toolchain.get("channel").unwrap();
+            dbg!(&channel);
+            test.env("RUSTUP_TOOLCHAIN", channel.as_str().unwrap());
+        }
+    }
     dbg!(&test);
 
     let output = test.output().unwrap();
