@@ -9,7 +9,7 @@ mod has {
     fn has() {
         let buf: [u8; _] = [0];
         let slice = IoSlice::new(&buf);
-        empty().write_all_vectored(&mut [slice]).unwrap();
+        assert!(empty().write_all_vectored(&mut [slice]).is_ok());
     }
 }
 
@@ -21,6 +21,5 @@ mod has_not {
     /// let slice = IoSlice::new(&buf);
     /// empty().write_all_vectored(&mut [slice]).unwrap();
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
