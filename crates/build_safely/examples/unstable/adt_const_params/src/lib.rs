@@ -2,26 +2,19 @@
 #![allow(unused)]
 
 #[cfg(has_adt_const_params)]
-use std::marker::ConstParamTy;
-
-#[cfg(has_adt_const_params)]
-#[derive(ConstParamTy, PartialEq, Eq)]
-struct Increment(i32);
-
-#[cfg(has_adt_const_params)]
-struct Counter<const INC: Increment>(i32);
-
-#[cfg(has_adt_const_params)]
-impl<const INC: Increment> Counter<INC> {
-    fn inc(&mut self) {
-        self.0 += INC.0;
-    }
-}
-
-#[cfg(test)]
-#[cfg(has_adt_const_params)]
 mod has {
-    use super::*;
+    use std::marker::ConstParamTy;
+
+    #[derive(ConstParamTy, PartialEq, Eq)]
+    struct Increment(i32);
+
+    struct Counter<const INC: Increment>(i32);
+
+    impl<const INC: Increment> Counter<INC> {
+        fn inc(&mut self) {
+            self.0 += INC.0;
+        }
+    }
 
     #[test]
     fn has() {
@@ -31,11 +24,21 @@ mod has {
     }
 }
 
-#[cfg(test)]
 #[cfg(not(has_adt_const_params))]
 mod has_not {
-    #[test]
-    fn has_not() {
-        assert!(true);
-    }
+    /// ```compile_fail
+    /// use std::marker::ConstParamTy;
+    ///
+    /// #[derive(ConstParamTy, PartialEq, Eq)]
+    /// struct Increment(i32);
+    ///
+    /// struct Counter<const INC: Increment>(i32);
+    ///
+    /// impl<const INC: Increment> Counter<INC> {
+    ///     fn inc(&mut self) {
+    ///         self.0 += INC.0;
+    ///     }
+    /// }
+    /// ```
+    fn doctest() {}
 }
