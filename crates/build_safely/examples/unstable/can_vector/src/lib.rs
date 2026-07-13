@@ -17,6 +17,5 @@ mod has_not {
     /// use std::io::Read;
     /// let _ = std::io::empty().is_read_vectored();
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
