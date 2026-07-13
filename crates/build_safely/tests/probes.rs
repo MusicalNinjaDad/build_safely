@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Command};
+use std::{env, path::PathBuf, process::Command};
 
 use rstest::*;
 
@@ -128,10 +128,14 @@ fn runtest(example: PathBuf, setup: Setup) {
     dbg!(which_cargo);
 
     let mut _cargo_ver = Command::new("cargo");
+    for (key, _) in env::vars() {
+        if key.starts_with("CARGO") {
+            _cargo_ver.env_remove(key);
+        }
+    };
     if let Some(channel) = channel_override {
         _cargo_ver.arg(channel);
     }
-    _cargo_ver.env_remove("CARGO");
     _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
@@ -142,6 +146,11 @@ fn runtest(example: PathBuf, setup: Setup) {
     dbg!(_cargo_ver_output);
 
     let mut test = Command::new("cargo");
+    for (key, _) in env::vars() {
+        if key.starts_with("CARGO") {
+            test.env_remove(key);
+        }
+    };
     if let Some(channel) = channel_override {
         test.arg(channel);
     };
