@@ -512,7 +512,12 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::unsized_const_params => {
-                let extra_lines = if unstable(ac, &UnstableFeature::adt_const_params, true, None) {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::adt_const_params,
+                    allowed_features.includes(&UnstableFeature::adt_const_params),
+                    None,
+                ) {
                     Some("#![feature(adt_const_params)]")
                 } else {
                     None
