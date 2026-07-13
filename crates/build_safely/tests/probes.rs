@@ -14,31 +14,31 @@ mod unstable {
 
     const NIGHTLY: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+nightly"),
+        channel_override: Some("nightly"),
         has: true,
     };
 
     const NIGHTLY_ALLOWED: Setup = Setup {
         config_dir: Some("allowed"),
-        channel_override: Some("+nightly"),
+        channel_override: Some("nightly"),
         has: true,
     };
 
     const NIGHTLY_FORBIDDEN: Setup = Setup {
         config_dir: Some("forbidden"),
-        channel_override: Some("+nightly"),
+        channel_override: Some("nightly"),
         has: false,
     };
 
     const STABLE: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+stable"),
+        channel_override: Some("stable"),
         has: false,
     };
 
     const BETA: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+beta"),
+        channel_override: Some("beta"),
         has: false,
     };
 
@@ -64,19 +64,19 @@ mod stable {
 
     const STABLE: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+stable"),
+        channel_override: Some("stable"),
         has: true,
     };
 
     const BETA: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+beta"),
+        channel_override: Some("beta"),
         has: true,
     };
 
     const NIGHTLY: Setup = Setup {
         config_dir: None,
-        channel_override: Some("+nightly"),
+        channel_override: Some("nightly"),
         has: true,
     };
 
