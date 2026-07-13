@@ -168,26 +168,23 @@ fn runtest(example: PathBuf, setup: Setup) {
         if key == "CARGO" || key.starts_with("CARGO_MANIFEST") || key.starts_with("CARGO_PKG") {
             test.env_remove(key);
         }
-    };
+    }
     test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0").env(
         "RUSTUP_TOOLCHAIN",
         match channel_override {
             Some(channel) => channel.to_string(),
             None => {
-                let toolchain = example.join("rust-toolchain.toml");
-                let contents = fs::read_to_string(toolchain).unwrap();
-                dbg!(&contents);
-                let parsed: Table = contents.parse().unwrap();
-                dbg!(&parsed);
-                let toolchain = parsed["toolchain"].clone();
-                dbg!(&toolchain);
-                let Value::Table(toolchain) = toolchain else {
-                    panic!("whhhhaaaaaa")
-                };
-                dbg!(&toolchain);
-                let channel = toolchain["channel"].clone();
-                dbg!(&channel);
-                channel.as_str().unwrap().to_string()
+                let rust_toolchain_toml = example.join("rust-toolchain.toml");
+                fs::read_to_string(rust_toolchain_toml)
+                    .unwrap()
+                    .parse::<Table>()
+                    .unwrap()
+                    .get("toolchain")
+                    .map(|v| Table::try_from(v.clone()).unwrap())
+                    .unwrap()
+                    .get("channel")
+                    .map(|v| v.as_str().unwrap().to_string())
+                    .unwrap()
             }
         },
     );
