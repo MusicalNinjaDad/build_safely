@@ -14,6 +14,5 @@ mod has_not {
     /// ```compile_fail
     /// let _: Option<Vec<_>> = std::iter::Iterator::try_collect(&mut vec![Some(1)].into_iter());
     /// ```
-    #[test]
-    fn has_not() {}
+    fn doctest() {}
 }
