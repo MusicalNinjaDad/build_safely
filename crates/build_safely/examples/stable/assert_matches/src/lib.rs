@@ -1,6 +1,6 @@
 #![cfg_attr(unstable_assert_matches, feature(assert_matches))]
+#![allow(unused)]
 
-#[cfg(test)]
 #[cfg(has_assert_matches)]
 mod has {
     #[cfg(assert_matches_location = "root")]
@@ -15,11 +15,10 @@ mod has {
     }
 }
 
-#[cfg(test)]
 #[cfg(not(has_assert_matches))]
 mod has_not {
-    #[test]
-    fn has_not() {
-        assert_eq!(Some(5), Some(5));
-    }
+    /// ```compile_fail
+    /// use std::assert_matches;
+    /// ```
+    fn doctest() {}
 }

@@ -151,18 +151,24 @@ fn runtest(example: PathBuf, setup: Setup) {
     );
 
     let output = test.output().unwrap();
+    let status = output.status;
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     if has {
         assert!(
-            stdout.contains("test has::"),
-            "incorrect tests run: {stdout} {stderr}"
+            stdout.contains("has::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
         );
     } else {
         assert!(
-            stdout.contains("test has_not::"),
-            "incorrect tests run: {stdout} {stderr}"
+            stdout.contains("has_not::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
         );
     };
+
+    assert!(
+        status.success(),
+        "test execution failed with {status} {stdout} {stderr}"
+    );
 }
