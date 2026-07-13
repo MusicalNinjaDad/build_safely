@@ -126,29 +126,34 @@ fn runtest(example: PathBuf, setup: Setup) {
     } = setup;
 
     let mut test = Command::new("cargo");
-    test.arg("test");
+    test.arg("test")
+        .current_dir(&example)
+        .env("RUSTC_BOOTSTRAP", "0")
+        // We need to read the rust-toolchain.toml ourselves and set RUSTUP_TOOLCHAIN
+        // as cargo absolutely refuses to run on a different toolchain than the one
+        // invoking the top level cargo test
+        .env(
+            "RUSTUP_TOOLCHAIN",
+            match channel_override {
+                Some(channel) => channel.to_string(),
+                None => {
+                    let rust_toolchain_toml = example.join("rust-toolchain.toml");
+                    fs::read_to_string(rust_toolchain_toml)
+                        .unwrap()
+                        .parse::<Table>()
+                        .unwrap()
+                        .get("toolchain")
+                        .map(|v| Table::try_from(v.clone()).unwrap())
+                        .unwrap()
+                        .get("channel")
+                        .map(|v| v.as_str().unwrap().to_string())
+                        .unwrap()
+                }
+            },
+        );
     if let Some(config) = config_dir {
         test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-    test.current_dir(&example).env("RUSTC_BOOTSTRAP", "0").env(
-        "RUSTUP_TOOLCHAIN",
-        match channel_override {
-            Some(channel) => channel.to_string(),
-            None => {
-                let rust_toolchain_toml = example.join("rust-toolchain.toml");
-                fs::read_to_string(rust_toolchain_toml)
-                    .unwrap()
-                    .parse::<Table>()
-                    .unwrap()
-                    .get("toolchain")
-                    .map(|v| Table::try_from(v.clone()).unwrap())
-                    .unwrap()
-                    .get("channel")
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .unwrap()
-            }
-        },
-    );
 
     let output = test.output().unwrap();
     let status = output.status;
