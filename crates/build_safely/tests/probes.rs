@@ -127,18 +127,20 @@ fn runtest(example: PathBuf, setup: Setup) {
     let which_cargo = Command::new("which").arg("cargo").output().unwrap();
     dbg!(which_cargo);
 
-    let mut _cargo_ver = Command::new("sh");
-    _cargo_ver.args(["-c","export"]);
+    let mut _cargo_ver = Command::new("cargo");
+    if let Some(channel) = channel_override {
+        _cargo_ver.arg(channel);
+    }
     _cargo_ver.current_dir(&example).env("RUSTC_BOOTSTRAP", "0");
     if let Some(config) = config_dir {
         _cargo_ver.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
+    _cargo_ver.args(["-V"]);
     dbg!(&_cargo_ver);
     let _cargo_ver_output = _cargo_ver.output().unwrap();
     dbg!(_cargo_ver_output);
 
-    let mut test = Command::new("sh");
-    test.args(["-c","cargo"]);
+    let mut test = Command::new("cargo");
     if let Some(channel) = channel_override {
         test.arg(channel);
     };
