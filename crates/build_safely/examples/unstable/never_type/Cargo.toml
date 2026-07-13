@@ -1,5 +1,5 @@
 [package]
-name = "build_safely-never_type_try_v2_residual_fixture"
+name = "build_safely-never_type_fixture"
 edition = "2024"
 version = "0.0.0"
 publish = false
