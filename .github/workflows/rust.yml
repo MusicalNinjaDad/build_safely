@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: install all toolchains
       run: rustup toolchain install stable beta nightly nightly-2026-01-01
     - name: Run tests
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: clippy
       run: cargo clippy -- --deny warnings
 
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: fmt
       run: cargo fmt --check
 
@@ -75,7 +75,7 @@ jobs:
         working-directory: crates/build_safely
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: install cargo-msrv
       uses: taiki-e/install-action@v2.83.3
       with:
@@ -91,7 +91,7 @@ jobs:
     needs: [test, lint]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: Create issue on failure
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
