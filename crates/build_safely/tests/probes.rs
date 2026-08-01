@@ -184,8 +184,40 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
-    let mut test = Command::new("cargo");
-    test.arg("test")
+    let mut test = cargo_foo("test", example, config_dir, channel_override);
+
+    let test_output = test.output().unwrap();
+    let test_status = test_output.status;
+    let test_stdout = String::from_utf8_lossy(&test_output.stdout);
+    let test_stderr = String::from_utf8_lossy(&test_output.stderr);
+
+    if has {
+        assert!(
+            test_stdout.contains("has::"),
+            "incorrect tests run: {test_status} {test_stdout} {test_stderr}"
+        );
+    } else {
+        assert!(
+            test_stdout.contains("has_not::"),
+            "incorrect tests run: {test_status} {test_stdout} {test_stderr}"
+        );
+    };
+
+    assert!(
+        test_status.success(),
+        "test execution failed with {test_status} {test_stdout} {test_stderr}"
+    );
+}
+
+fn cargo_foo(
+    subcommand: &str,
+    example: PathBuf,
+    config_dir: Option<&'static str>,
+    channel_override: Option<&'static str>,
+) -> Command {
+    let mut cargo_foo = Command::new("cargo");
+    cargo_foo
+        .arg(subcommand)
         .current_dir(&example)
         .env("RUSTC_BOOTSTRAP", "0")
         // We need to read the rust-toolchain.toml ourselves and set RUSTUP_TOOLCHAIN
@@ -211,28 +243,7 @@ fn runtest(example: PathBuf, setup: Setup) {
             },
         );
     if let Some(config) = config_dir {
-        test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+        cargo_foo.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-
-    let output = test.output().unwrap();
-    let status = output.status;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    if has {
-        assert!(
-            stdout.contains("has::"),
-            "incorrect tests run: {status} {stdout} {stderr}"
-        );
-    } else {
-        assert!(
-            stdout.contains("has_not::"),
-            "incorrect tests run: {status} {stdout} {stderr}"
-        );
-    };
-
-    assert!(
-        status.success(),
-        "test execution failed with {status} {stdout} {stderr}"
-    );
+    cargo_foo
 }
