@@ -1,4 +1,8 @@
-use std::{fs, path::PathBuf, process::Command};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use rstest::*;
 use serde::Deserialize;
@@ -182,7 +186,7 @@ mod beta {
     }
 }
 
-fn runtest(example: &PathBuf, setup: Setup) {
+fn runtest(example: &Path, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
@@ -216,7 +220,7 @@ fn runtest(example: &PathBuf, setup: Setup) {
 
 /// Run `clippy -- -D warnings` which has a tendency to fail more complex probes if they are
 /// not written correctly and assert cfg has_... is some/none in compiler output.
-fn clippy(example: &PathBuf, setup: Setup) {
+fn clippy(example: &Path, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
@@ -276,7 +280,7 @@ fn clippy(example: &PathBuf, setup: Setup) {
 /// Build a `cargo foo` Command with required environment for test execution
 fn cargo_foo(
     subcommand: &[&str],
-    example: &PathBuf,
+    example: &Path,
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
 ) -> Command {
