@@ -273,6 +273,7 @@ fn clippy(example: &PathBuf, setup: Setup) {
     }
 }
 
+/// Build a `cargo foo` Command with required environment for test execution
 fn cargo_foo(
     subcommand: &[&str],
     example: &PathBuf,
