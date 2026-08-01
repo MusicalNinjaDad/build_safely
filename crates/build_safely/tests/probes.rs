@@ -239,6 +239,13 @@ fn clippy(example: &PathBuf, setup: Setup) {
         "clippy failed with {status} {stdout} {stderr}"
     );
 
+    #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+    struct ClippyOutput {
+        reason: String,
+        package_id: String,
+        cfgs: Option<Vec<String>>,
+    }
+
     let compile_output = stdout
         .lines()
         .map(|line| serde_json::from_str(line).unwrap())
@@ -264,13 +271,6 @@ fn clippy(example: &PathBuf, setup: Setup) {
             "has_... was incorrectly set by build script"
         )
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-struct ClippyOutput {
-    reason: String,
-    package_id: String,
-    cfgs: Option<Vec<String>>,
 }
 
 fn cargo_foo(
