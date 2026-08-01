@@ -1,8 +1,14 @@
-use std::{fs, path::PathBuf, process::Command};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use rstest::*;
+use serde::Deserialize;
 use toml::Table;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Setup {
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
@@ -55,7 +61,8 @@ mod unstable {
         example: PathBuf,
         #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
@@ -114,7 +121,8 @@ mod stable {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
@@ -173,20 +181,113 @@ mod beta {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
-fn runtest(example: PathBuf, setup: Setup) {
+fn runtest(example: &Path, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
         has,
     } = setup;
 
-    let mut test = Command::new("cargo");
-    test.arg("test")
-        .current_dir(&example)
+    let mut test = cargo_foo(&["test"], example, config_dir, channel_override);
+
+    let output = test.output().unwrap();
+    let status = output.status;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    if has {
+        assert!(
+            stdout.contains("has::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
+        );
+    } else {
+        assert!(
+            stdout.contains("has_not::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
+        );
+    };
+
+    assert!(
+        status.success(),
+        "test execution failed with {status} {stdout} {stderr}"
+    );
+}
+
+/// Run `clippy -- -D warnings` which has a tendency to fail more complex probes if they are
+/// not written correctly and assert cfg has_... is some/none in compiler output.
+fn clippy(example: &Path, setup: Setup) {
+    let Setup {
+        config_dir,
+        channel_override,
+        has,
+    } = setup;
+
+    let mut clippy = cargo_foo(
+        &["clippy", "--message-format", "json", "--", "-D", "warnings"],
+        example,
+        config_dir,
+        channel_override,
+    );
+    let output = clippy.output().unwrap();
+    let status = output.status;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        status.success(),
+        "clippy failed with {status} {stdout} {stderr}"
+    );
+
+    #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+    struct ClippyOutput {
+        reason: String,
+        package_id: String,
+        cfgs: Option<Vec<String>>,
+    }
+
+    let compile_output = stdout
+        .lines()
+        .filter_map(|line| serde_json::from_str::<ClippyOutput>(line).ok())
+        .find(|line| {
+            line.reason == "build-script-executed"
+                && line
+                    .package_id
+                    .contains(example.to_str().expect("valid example path"))
+        })
+        .expect("compiled example");
+
+    let cfg_has_foo = compile_output
+        .cfgs
+        .expect("cfgs present")
+        .into_iter()
+        .find(|cfg| cfg.starts_with("has_"));
+
+    if has {
+        assert!(cfg_has_foo.is_some(), "has_... was not set by build script")
+    } else {
+        assert!(
+            cfg_has_foo.is_none(),
+            "has_... was incorrectly set by build script"
+        )
+    }
+}
+
+/// Build a `cargo foo` Command with required environment for test execution
+fn cargo_foo(
+    subcommand: &[&str],
+    example: &Path,
+    config_dir: Option<&'static str>,
+    channel_override: Option<&'static str>,
+) -> Command {
+    let mut cargo_foo = Command::new("cargo");
+    cargo_foo
+        .args(subcommand)
+        .current_dir(example)
         .env("RUSTC_BOOTSTRAP", "0")
         // We need to read the rust-toolchain.toml ourselves and set RUSTUP_TOOLCHAIN
         // as cargo absolutely refuses to run on a different toolchain than the one
@@ -211,28 +312,7 @@ fn runtest(example: PathBuf, setup: Setup) {
             },
         );
     if let Some(config) = config_dir {
-        test.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
+        cargo_foo.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
-
-    let output = test.output().unwrap();
-    let status = output.status;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    if has {
-        assert!(
-            stdout.contains("has::"),
-            "incorrect tests run: {status} {stdout} {stderr}"
-        );
-    } else {
-        assert!(
-            stdout.contains("has_not::"),
-            "incorrect tests run: {status} {stdout} {stderr}"
-        );
-    };
-
-    assert!(
-        status.success(),
-        "test execution failed with {status} {stdout} {stderr}"
-    );
+    cargo_foo
 }

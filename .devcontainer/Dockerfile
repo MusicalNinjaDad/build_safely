@@ -1,1 +1,2 @@
 FROM ghcr.io/musicalninjadad/rust-devcontainer:latest@sha256:fd54a5f28f6a953df6d49555b84c64ed7b65bfbd5183c1a33a71785415592561
+RUN rustup toolchain install nightly-2026-01-01
