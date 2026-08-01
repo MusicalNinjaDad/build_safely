@@ -1,5 +1,16 @@
 # build_safely CHANGELOG
 
+## [v0.5.4]
+
+### Bugfixes
+
+- Fixed `UnstableFeature::unsized_const_params` not identified when running `cargo clippy -- -D warnings`
+- `ninja_build-rs` stub re-exports latest version
+
+### Technical changes
+
+- Added tests of `cargo clippy -- -D warnings` for all examples
+
 ## [v0.5.3]
 
 ### New features
