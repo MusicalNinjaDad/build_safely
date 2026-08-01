@@ -57,8 +57,8 @@ mod unstable {
         example: PathBuf,
         #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
     ) {
-        runtest(example.clone(), setup);
-        clippy(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
@@ -117,8 +117,8 @@ mod stable {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example.clone(), setup);
-        clippy(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
@@ -177,12 +177,12 @@ mod beta {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example.clone(), setup);
-        clippy(example, setup);
+        runtest(&example, setup);
+        clippy(&example, setup);
     }
 }
 
-fn runtest(example: PathBuf, setup: Setup) {
+fn runtest(example: &PathBuf, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
@@ -216,7 +216,7 @@ fn runtest(example: PathBuf, setup: Setup) {
 
 /// Run `clippy -- -D warnings` which has a tendency to fail more complex probes if they are
 /// not written correctly and assert cfg has_... is some/none in compiler output.
-fn clippy(example: PathBuf, setup: Setup) {
+fn clippy(example: &PathBuf, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
@@ -225,7 +225,7 @@ fn clippy(example: PathBuf, setup: Setup) {
 
     let mut clippy = cargo_foo(
         &["clippy", "--message-format", "json", "--", "-D", "warnings"],
-        example.clone(),
+        example,
         config_dir,
         channel_override,
     );
@@ -275,14 +275,14 @@ struct ClippyOutput {
 
 fn cargo_foo(
     subcommand: &[&str],
-    example: PathBuf,
+    example: &PathBuf,
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
 ) -> Command {
     let mut cargo_foo = Command::new("cargo");
     cargo_foo
         .args(subcommand)
-        .current_dir(&example)
+        .current_dir(example)
         .env("RUSTC_BOOTSTRAP", "0")
         // We need to read the rust-toolchain.toml ourselves and set RUSTUP_TOOLCHAIN
         // as cargo absolutely refuses to run on a different toolchain than the one
