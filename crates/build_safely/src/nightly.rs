@@ -364,11 +364,12 @@ use std::ops::Residual;
     }
 
     pub mod unsized_const_params {
-        // requires adt_const_params
-        // possible duplication of allow(stable_features) is OK as duplication check is a
-        // clippy lint - and we are just compiling the probe with rustc
+        // requires: feature(adt_const_params), allow(incomplete_features)
+        // #![allow(stable_features)] may be duplicated by make_probe
         pub const AVAILABLE: &str = r#"
+#![allow(clippy::duplicated_attributes)]
 #![allow(stable_features)]
+#![allow(incomplete_features)]
 #![feature(adt_const_params)]
 struct Foo<const N: &'static str>;
 "#;
@@ -518,7 +519,7 @@ impl Nightly for AutoCfg {
                     allowed_features.includes(&UnstableFeature::adt_const_params),
                     None,
                 ) {
-                    Some("#![feature(adt_const_params)]")
+                    Some("#![feature(adt_const_params)]\n#![allow(incomplete_features)]")
                 } else {
                     None
                 };
