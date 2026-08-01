@@ -252,8 +252,8 @@ fn clippy(example: &Path, setup: Setup) {
 
     let compile_output = stdout
         .lines()
-        .map(|line| serde_json::from_str(line).unwrap())
-        .find(|line: &ClippyOutput| {
+        .filter_map(|line| serde_json::from_str::<ClippyOutput>(line).ok())
+        .find(|line| {
             line.reason == "build-script-executed"
                 && line
                     .package_id
