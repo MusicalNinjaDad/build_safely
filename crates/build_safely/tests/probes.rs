@@ -3,6 +3,7 @@ use std::{fs, path::PathBuf, process::Command};
 use rstest::*;
 use toml::Table;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Setup {
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
@@ -55,7 +56,8 @@ mod unstable {
         example: PathBuf,
         #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(example.clone(), setup);
+        clippy(example, setup);
     }
 }
 
@@ -184,40 +186,64 @@ fn runtest(example: PathBuf, setup: Setup) {
         has,
     } = setup;
 
-    let mut test = cargo_foo("test", example, config_dir, channel_override);
+    let mut test = cargo_foo(&["test"], example, config_dir, channel_override);
 
-    let test_output = test.output().unwrap();
-    let test_status = test_output.status;
-    let test_stdout = String::from_utf8_lossy(&test_output.stdout);
-    let test_stderr = String::from_utf8_lossy(&test_output.stderr);
+    let output = test.output().unwrap();
+    let status = output.status;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
 
     if has {
         assert!(
-            test_stdout.contains("has::"),
-            "incorrect tests run: {test_status} {test_stdout} {test_stderr}"
+            stdout.contains("has::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
         );
     } else {
         assert!(
-            test_stdout.contains("has_not::"),
-            "incorrect tests run: {test_status} {test_stdout} {test_stderr}"
+            stdout.contains("has_not::"),
+            "incorrect tests run: {status} {stdout} {stderr}"
         );
     };
 
     assert!(
-        test_status.success(),
-        "test execution failed with {test_status} {test_stdout} {test_stderr}"
+        status.success(),
+        "test execution failed with {status} {stdout} {stderr}"
     );
 }
 
+fn clippy(example: PathBuf, setup: Setup) {
+    let Setup {
+        config_dir,
+        channel_override,
+        ..
+    } = setup;
+
+    let mut clippy = cargo_foo(
+        &["clippy", "--", "-D", "warnings"],
+        example,
+        config_dir,
+        channel_override,
+    );
+    let output = clippy.output().unwrap();
+    let status = output.status;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        status.success(),
+        "clippy failed with {status} {stdout} {stderr}"
+    )
+}
+
 fn cargo_foo(
-    subcommand: &str,
+    subcommand: &[&str],
     example: PathBuf,
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
 ) -> Command {
     let mut cargo_foo = Command::new("cargo");
     cargo_foo
-        .arg(subcommand)
+        .args(subcommand)
         .current_dir(&example)
         .env("RUSTC_BOOTSTRAP", "0")
         // We need to read the rust-toolchain.toml ourselves and set RUSTUP_TOOLCHAIN
