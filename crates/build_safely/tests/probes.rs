@@ -1,6 +1,7 @@
 use std::{fs, path::PathBuf, process::Command};
 
 use rstest::*;
+use serde::Deserialize;
 use toml::Table;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -219,12 +220,12 @@ fn clippy(example: PathBuf, setup: Setup) {
     let Setup {
         config_dir,
         channel_override,
-        ..
+        has,
     } = setup;
 
     let mut clippy = cargo_foo(
-        &["clippy", "--", "-D", "warnings"],
-        example,
+        &["clippy", "--message-format", "json", "--", "-D", "warnings"],
+        example.clone(),
         config_dir,
         channel_override,
     );
@@ -236,7 +237,40 @@ fn clippy(example: PathBuf, setup: Setup) {
     assert!(
         status.success(),
         "clippy failed with {status} {stdout} {stderr}"
-    )
+    );
+
+    let compile_output = stdout
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .find(|line: &ClippyOutput| {
+            line.reason == "build-script-executed"
+                && line
+                    .package_id
+                    .contains(example.to_str().expect("valid example path"))
+        })
+        .expect("compiled example");
+
+    let cfg_has_foo = compile_output
+        .cfgs
+        .expect("cfgs present")
+        .into_iter()
+        .find(|cfg| cfg.starts_with("has_"));
+
+    if has {
+        assert!(cfg_has_foo.is_some(), "has_... was not set by build script")
+    } else {
+        assert!(
+            cfg_has_foo.is_none(),
+            "has_... was incorrectly set by build script"
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+struct ClippyOutput {
+    reason: String,
+    package_id: String,
+    cfgs: Option<Vec<String>>,
 }
 
 fn cargo_foo(
