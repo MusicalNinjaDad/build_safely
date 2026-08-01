@@ -116,7 +116,8 @@ mod stable {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(example.clone(), setup);
+        clippy(example, setup);
     }
 }
 
@@ -175,7 +176,8 @@ mod beta {
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
     ) {
-        runtest(example, setup);
+        runtest(example.clone(), setup);
+        clippy(example, setup);
     }
 }
 
@@ -211,6 +213,8 @@ fn runtest(example: PathBuf, setup: Setup) {
     );
 }
 
+/// Run `clippy -- -D warnings` which has a tendency to fail more complex probes if they are
+/// not written correctly.
 fn clippy(example: PathBuf, setup: Setup) {
     let Setup {
         config_dir,
