@@ -5,7 +5,7 @@
 ### Bugfixes
 
 - Fixed `UnstableFeature::unsized_const_params` not identified when running `cargo clippy -- -D warnings`
-- `ninja_build-rs` stub re-exports latest version
+- `ninja-build_rs` stub re-exports latest version
 
 ### Technical changes
 
