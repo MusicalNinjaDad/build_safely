@@ -1,2 +1,2 @@
-FROM ghcr.io/musicalninjadad/rust-devcontainer:latest@sha256:445b8c2d284c09b67b0948c318dc66ea4f50e2e4f6114bda300ebd7554fbda67
+FROM ghcr.io/musicalninjadad/rust-devcontainer:latest@sha256:f550a0ce80a64b54305e96555ece2b7cb94be62adfbe6ed9073520750cb2cab9
 RUN rustup toolchain install nightly-2026-01-01
