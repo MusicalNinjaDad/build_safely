@@ -76,18 +76,6 @@ mod nightly {
         has: true,
     };
 
-    const NIGHTLY_ALLOWED: Setup = Setup {
-        config_dir: Some("allowed"),
-        channel_override: Some("nightly"),
-        has: true,
-    };
-
-    const NIGHTLY_FORBIDDEN: Setup = Setup {
-        config_dir: Some("forbidden"),
-        channel_override: Some("nightly"),
-        has: false,
-    };
-
     const STABLE: Setup = Setup {
         config_dir: None,
         channel_override: Some("stable"),
@@ -97,6 +85,24 @@ mod nightly {
     const BETA: Setup = Setup {
         config_dir: None,
         channel_override: Some("beta"),
+        has: false,
+    };
+
+    const PRE_STABILISATION: Setup = Setup {
+        config_dir: None,
+        channel_override: None,
+        has: true,
+    };
+
+    const PRE_ALLOWED: Setup = Setup {
+        config_dir: Some("allowed"),
+        channel_override: None,
+        has: true,
+    };
+
+    const PRE_FORBIDDEN: Setup = Setup {
+        config_dir: Some("forbidden"),
+        channel_override: None,
         has: false,
     };
 
@@ -111,7 +117,7 @@ mod nightly {
         #[dirs]
         #[base_dir = "examples/nightly"]
         example: PathBuf,
-        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
+        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)] setup: Setup,
     ) {
         runtest(&example, setup);
         clippy(&example, setup);
