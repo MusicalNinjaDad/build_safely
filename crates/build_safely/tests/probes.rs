@@ -117,7 +117,8 @@ mod nightly {
         #[dirs]
         #[base_dir = "examples/nightly"]
         example: PathBuf,
-        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)] setup: Setup,
+        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
+        setup: Setup,
     ) {
         runtest(&example, setup);
         clippy(&example, setup);
