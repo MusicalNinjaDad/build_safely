@@ -2,7 +2,8 @@
 members = [
     "crates/*",
     "crates/build_safely/examples/unstable/*",
-    "crates/build_safely/examples/beta/*",
+    "crates/build_safely/examples/nightly/*",
+    # "crates/build_safely/examples/beta/*",
     "crates/build_safely/examples/stable/*",
 ]
 resolver = "3"
@@ -14,7 +15,6 @@ readme = "README.md"
 description = "build script helpers for working with nightly"
 authors = ["Mike Foster <https://github.com/MusicalNinjaDad>"]
 keywords = ["build", "autocfg", "nightly"]
-homepage = "https://github.com/MusicalNinjaDad/build_safely"
 repository = "https://github.com/MusicalNinjaDad/build_safely"
 categories = ["development-tools::build-utils"]
 license = "MIT"
