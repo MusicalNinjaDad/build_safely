@@ -66,6 +66,58 @@ mod unstable {
     }
 }
 
+/// Features which are stable on nightly, but not yet on beta
+mod nightly {
+    use super::*;
+
+    const NIGHTLY: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("nightly"),
+        has: true,
+    };
+
+    const NIGHTLY_ALLOWED: Setup = Setup {
+        config_dir: Some("allowed"),
+        channel_override: Some("nightly"),
+        has: true,
+    };
+
+    const NIGHTLY_FORBIDDEN: Setup = Setup {
+        config_dir: Some("forbidden"),
+        channel_override: Some("nightly"),
+        has: false,
+    };
+
+    const STABLE: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("stable"),
+        has: false,
+    };
+
+    const BETA: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("beta"),
+        has: false,
+    };
+
+    #[rstest]
+    /// Runs the tests for each example under `examples/nightly`
+    ///
+    /// All examples have 2 subdirs `allowed` & `forbidden`, each containing a `.cargo/config.toml` which
+    /// either specifically allows or forbids the feature. This supports cases where one feature depends
+    /// on others also being enabled (e.g. unsized_const_params, try_trait_v2).
+    fn examples(
+        #[files("*")]
+        #[dirs]
+        #[base_dir = "examples/nightly"]
+        example: PathBuf,
+        #[values(NIGHTLY, NIGHTLY_ALLOWED, NIGHTLY_FORBIDDEN, STABLE, BETA)] setup: Setup,
+    ) {
+        runtest(&example, setup);
+        clippy(&example, setup);
+    }
+}
+
 mod stable {
     use super::*;
 
