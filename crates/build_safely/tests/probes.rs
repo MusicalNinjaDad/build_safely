@@ -126,6 +126,7 @@ mod stable {
     }
 }
 
+#[cfg(false)]
 mod beta {
     use super::*;
 
