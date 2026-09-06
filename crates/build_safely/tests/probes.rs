@@ -118,66 +118,6 @@ mod nightly {
     }
 }
 
-mod stable {
-    use super::*;
-
-    const STABLE: Setup = Setup {
-        config_dir: None,
-        channel_override: Some("stable"),
-        has: true,
-    };
-
-    const BETA: Setup = Setup {
-        config_dir: None,
-        channel_override: Some("beta"),
-        has: true,
-    };
-
-    const NIGHTLY: Setup = Setup {
-        config_dir: None,
-        channel_override: Some("nightly"),
-        has: true,
-    };
-
-    const PRE_STABILISATION: Setup = Setup {
-        config_dir: None,
-        channel_override: None,
-        has: true,
-    };
-
-    const PRE_ALLOWED: Setup = Setup {
-        config_dir: Some("allowed"),
-        channel_override: None,
-        has: true,
-    };
-
-    const PRE_FORBIDDEN: Setup = Setup {
-        config_dir: Some("forbidden"),
-        channel_override: None,
-        has: false,
-    };
-
-    #[rstest]
-    /// Runs the tests for each example under `examples/stable`
-    ///
-    /// All examples have a rust-toolchain.toml which specifies a nightly channel from before stabilisation.
-    ///
-    /// All examples have 2 subdirs `allowed` & `forbidden`, each containing a `.cargo/config.toml` which
-    /// either specifically allows or forbids the feature. This supports cases where one feature depends
-    /// on others also being enabled (e.g. unsized_const_params, try_trait_v2).
-    fn examples(
-        #[files("*")]
-        #[dirs]
-        #[base_dir = "examples/stable"]
-        example: PathBuf,
-        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
-        setup: Setup,
-    ) {
-        runtest(&example, setup);
-        clippy(&example, setup);
-    }
-}
-
 #[cfg(false)]
 mod beta {
     use super::*;
@@ -230,6 +170,66 @@ mod beta {
         #[files("*")]
         #[dirs]
         #[base_dir = "examples/beta"]
+        example: PathBuf,
+        #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
+        setup: Setup,
+    ) {
+        runtest(&example, setup);
+        clippy(&example, setup);
+    }
+}
+
+mod stable {
+    use super::*;
+
+    const STABLE: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("stable"),
+        has: true,
+    };
+
+    const BETA: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("beta"),
+        has: true,
+    };
+
+    const NIGHTLY: Setup = Setup {
+        config_dir: None,
+        channel_override: Some("nightly"),
+        has: true,
+    };
+
+    const PRE_STABILISATION: Setup = Setup {
+        config_dir: None,
+        channel_override: None,
+        has: true,
+    };
+
+    const PRE_ALLOWED: Setup = Setup {
+        config_dir: Some("allowed"),
+        channel_override: None,
+        has: true,
+    };
+
+    const PRE_FORBIDDEN: Setup = Setup {
+        config_dir: Some("forbidden"),
+        channel_override: None,
+        has: false,
+    };
+
+    #[rstest]
+    /// Runs the tests for each example under `examples/stable`
+    ///
+    /// All examples have a rust-toolchain.toml which specifies a nightly channel from before stabilisation.
+    ///
+    /// All examples have 2 subdirs `allowed` & `forbidden`, each containing a `.cargo/config.toml` which
+    /// either specifically allows or forbids the feature. This supports cases where one feature depends
+    /// on others also being enabled (e.g. unsized_const_params, try_trait_v2).
+    fn examples(
+        #[files("*")]
+        #[dirs]
+        #[base_dir = "examples/stable"]
         example: PathBuf,
         #[values(NIGHTLY, STABLE, BETA, PRE_STABILISATION, PRE_ALLOWED, PRE_FORBIDDEN)]
         setup: Setup,
