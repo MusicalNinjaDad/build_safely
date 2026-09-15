@@ -4,6 +4,5 @@ fn main() -> Result<()> {
     let ac = AutoCfg::new()?;
     let allowed_features = cargo_allowed_features()?;
     ac.emit_unstable_feature(const_ops, &allowed_features);
-    ac.emit_unstable_feature(const_trait_impl, &allowed_features);
     Ok(())
 }

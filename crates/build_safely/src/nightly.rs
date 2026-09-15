@@ -133,6 +133,7 @@ pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`const_ops`](https://github.com/rust-lang/rust/issues/143802)
     /// - `#![cfg_attr(unstable_const_ops, feature(const_ops))]`
     /// - `#[cfg(has_const_ops)]`
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - Note: `const_ops` requires `const_trait_impl` to be enabled
     const_ops,
     /// ## Provides cfg flags for feature [`const_trait_impl`](https://github.com/rust-lang/rust/issues/143874)
@@ -236,7 +237,7 @@ mod probes {
         let cfg = format!("has_{feature}");
         autocfg::emit_possibility(&cfg);
         let code = make_probe(feature, allowed, probe);
-                if ac.probe_raw(&code).is_ok() {
+        if ac.probe_raw(&code).is_ok() {
             autocfg::emit(&cfg);
             true
         } else {
@@ -512,8 +513,8 @@ impl Nightly for AutoCfg {
             UnstableFeature::const_ops => {
                 let extra_lines = if unstable(
                     ac,
-                    &UnstableFeature::adt_const_params,
-                    allowed_features.includes(&UnstableFeature::adt_const_params),
+                    &UnstableFeature::const_trait_impl,
+                    allowed_features.includes(&UnstableFeature::const_trait_impl),
                     None,
                 ) {
                     Some("#![feature(const_trait_impl)]")

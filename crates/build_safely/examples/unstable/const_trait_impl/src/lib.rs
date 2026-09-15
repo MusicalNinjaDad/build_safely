@@ -10,7 +10,7 @@ mod has_not {
     /// ```compile_fail
     /// struct Thing2;
     /// const trait New2 {}
-    /// 
+    ///
     /// const impl New2 for Thing2 {}
     /// ```
     fn doctest() {}
