@@ -130,12 +130,16 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_can_vector)]`
     /// - this gates [`std::io::Read::is_read_vectored`] & [`std::io::Write::is_write_vectored`]
     can_vector,
-    /// ## Provides cfg flags for feature [`can_vector`](https://github.com/rust-lang/rust/issues/45040)
+    /// ## Provides cfg flags for feature [`const_ops`](https://github.com/rust-lang/rust/issues/143802)
     /// - `#![cfg_attr(unstable_const_ops, feature(const_ops))]`
     /// - `#[cfg(has_const_ops)]`
     /// - Note: `const_ops` requires `const_trait_impl` to be enabled
     const_ops,
-    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/143802)
+    /// ## Provides cfg flags for feature [`const_trait_impl`](https://github.com/rust-lang/rust/issues/143874)
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - `#[cfg(has_const_trait_impl)]`
+    const_trait_impl,
+    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
@@ -187,6 +191,7 @@ impl UnstableFeature {
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
             "const_ops" => Self::const_ops,
+            "const_trait_impl" => Self::const_trait_impl,
             "doc_notable_trait" => Self::doc_notable_trait,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
@@ -231,7 +236,7 @@ mod probes {
         let cfg = format!("has_{feature}");
         autocfg::emit_possibility(&cfg);
         let code = make_probe(feature, allowed, probe);
-        if ac.probe_raw(&code).is_ok() {
+                if ac.probe_raw(&code).is_ok() {
             autocfg::emit(&cfg);
             true
         } else {
@@ -337,6 +342,14 @@ const impl Add<Right> for Left {
         Self(self.0 + rhs.0)
     }
 }
+"#;
+    }
+
+    pub mod const_trait_impl {
+        pub const AVAILABLE: &str = r#"
+struct Thing;
+const trait Foo {}
+const impl Foo for Thing {}
 "#;
     }
 
@@ -509,6 +522,10 @@ impl Nightly for AutoCfg {
                 };
                 unstable(ac, &feature, allowed, extra_lines);
                 has(ac, &feature, allowed, probes::const_ops::AVAILABLE)
+            }
+            UnstableFeature::const_trait_impl => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::const_trait_impl::AVAILABLE)
             }
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);
