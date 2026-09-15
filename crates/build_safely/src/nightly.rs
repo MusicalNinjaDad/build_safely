@@ -162,6 +162,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
     /// - `#[cfg(has_integer_casts)]`
     integer_casts,
+    /// ## Provides cfg flags for feature [`iter_array_chunks`](https://github.com/rust-lang/rust/issues/100450)
+    /// - `#![cfg_attr(unstable_iter_array_chunks, feature(iter_array_chunks))]`
+    /// - `#[cfg(has_iter_array_chunks)]`
+    iter_array_chunks,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
@@ -216,6 +220,7 @@ impl UnstableFeature {
             "exact_size_is_empty" => Self::exact_size_is_empty,
             "integer_cast_extras" => Self::integer_cast_extras,
             "integer_casts" => Self::integer_casts,
+            "iter_array_chunks" => Self::iter_array_chunks,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
@@ -437,6 +442,15 @@ fn integer_casts() {
 "#;
     }
 
+    pub mod iter_array_chunks {
+        pub const AVAILABLE: &str = r#"
+fn iter_array_chunks() {
+    let x = [0,1,2,3,4];
+    let _ = x.iter().array_chunks::<2>();
+}
+"#;
+    }
+
     pub mod iterator_try_collect {
         // vec! not array: https://internals.rust-lang.org/t/code-compiles-on-playground-but-fails-when-passed-via-stdin-to-rustc/24393
         pub const AVAILABLE: &str = r#"
@@ -648,6 +662,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::integer_casts => {
                 unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::integer_casts::AVAILABLE)
+            }
+            UnstableFeature::iter_array_chunks => {
+                unstable(self, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::iter_array_chunks::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
                 unstable(self, &feature, allowed, None);
