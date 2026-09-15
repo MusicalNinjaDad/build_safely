@@ -153,6 +153,10 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_exact_size_is_empty)]`
     exact_size_is_empty,
     /// ## Provides cfg flags:
+    /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
+    /// - `#[cfg(has_integer_casts)]`
+    integer_casts,
+    /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
     iterator_try_collect,
@@ -204,6 +208,7 @@ impl UnstableFeature {
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
             "exact_size_is_empty" => Self::exact_size_is_empty,
+            "integer_casts" => Self::integer_casts,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
@@ -406,6 +411,14 @@ fn empty() {
 "#;
     }
 
+    pub mod integer_casts {
+        pub const AVAILABLE: &str = r#"
+fn integer_casts() {
+    let _: u32 = 0_usize.strict_cast();
+}
+"#;
+    }
+
     pub mod iterator_try_collect {
         // vec! not array: https://internals.rust-lang.org/t/code-compiles-on-playground-but-fails-when-passed-via-stdin-to-rustc/24393
         pub const AVAILABLE: &str = r#"
@@ -594,6 +607,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::exact_size_is_empty::AVAILABLE,
                 )
+            }
+            UnstableFeature::integer_casts => {
+                unstable(self, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::integer_casts::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
                 unstable(self, &feature, allowed, None);
