@@ -17,7 +17,10 @@
 //! fn main() -> Result<()> {
 //!     // get a new AutoCfg or provide a valuable error
 //!     // rather than panicing
-//!     let ac = AutoCfg::new()?;
+//!     //
+//!     // We require `mut` as we set edition 2024 by default, unless you have
+//!     // specifically called `ac.set_edition(...)`
+//!     let mut ac = AutoCfg::new()?;
 //!
 //!     // check to see if the downstream crate has defined
 //!     // `unstable.allow-features` in `.cargo/config.toml`.
@@ -598,8 +601,9 @@ pub trait Nightly {
     /// - If you need to test that a feature is available in order to cfg-gate your code and it is not
     ///   on the list of [known features](UnstableFeature), please raise a PR with a suggested probe.
     /// - Returns `true` if `has_...` has been set. This means `OtherFeature` will always return `false`
+    /// - Will use edition 2024 for probes, unless you have specifically set an edition with [AutoCfg::set_edition]
     fn emit_unstable_feature(
-        &self,
+        &mut self,
         feature: UnstableFeature,
         allowed_features: &AllowedFeatures,
     ) -> bool;
@@ -612,7 +616,7 @@ pub trait Nightly {
     /// - This will always return false if any of the features are
     ///   [`OtherFeature`](UnstableFeature::OtherFeature)
     fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
-        &self,
+        &mut self,
         features: F,
         allowed_features: &AllowedFeatures,
         bundle_name: &str,
@@ -621,22 +625,18 @@ pub trait Nightly {
 
 impl Nightly for AutoCfg {
     fn emit_unstable_feature(
-        &self,
+        &mut self,
         feature: UnstableFeature,
         allowed_features: &AllowedFeatures,
     ) -> bool {
         // show in `cargo build -vv`
         dbg!(&feature);
 
-        let ac2024 = if self.edition().is_none() {
-            let mut ac2024 = self.clone();
-            ac2024.set_edition(Some("2024".to_string()));
-            Some(ac2024)
-        } else {
-            None
-        };
+        if self.edition().is_none() {
+            self.set_edition(Some("2024".to_string()));
+        }
 
-        let ac = ac2024.as_ref().unwrap_or(self);
+        let ac = self;
 
         let allowed = allowed_features.includes(&feature);
         match feature {
@@ -645,14 +645,14 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::adt_const_params::AVAILABLE)
             }
             UnstableFeature::assert_matches => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 autocfg::emit_possibility("assert_matches_location, values(\"root\", \"module\")");
-                if self
+                if ac
                     .probe_raw(&make_probe(&feature, allowed, probes::assert_matches::ROOT))
                     .is_ok()
                 {
                     autocfg::emit("assert_matches_location=\"root\"");
-                } else if allowed && self.probe_raw(probes::assert_matches::MODULE).is_ok() {
+                } else if allowed && ac.probe_raw(probes::assert_matches::MODULE).is_ok() {
                     //    ^^^^^^^ assert_matches was stabilised in root
                     autocfg::emit("assert_matches_location=\"module\"");
                 }
@@ -717,7 +717,7 @@ impl Nightly for AutoCfg {
                 } else {
                     None
                 };
-                unstable(self, &feature, allowed, extra_lines);
+                unstable(ac, &feature, allowed, extra_lines);
                 has(
                     ac,
                     &feature,
@@ -726,19 +726,19 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::integer_casts => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::integer_casts::AVAILABLE)
             }
             UnstableFeature::iter_array_chunks => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::iter_array_chunks::AVAILABLE)
             }
             UnstableFeature::iter_next_chunk => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::iter_next_chunk::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -747,15 +747,15 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::negative_impls => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::negative_impls::AVAILABLE)
             }
             UnstableFeature::never_type => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
             }
             UnstableFeature::path_absolute_method => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -777,7 +777,7 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
             }
             UnstableFeature::try_blocks_heterogeneous => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -786,11 +786,11 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::try_trait_v2 => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::try_trait_v2::AVAILABLE)
             }
             UnstableFeature::try_trait_v2_residual => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -822,14 +822,14 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::write_all_vectored::AVAILABLE)
             }
             UnstableFeature::OtherFeature(_) => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 false
             }
         }
     }
 
     fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
-        &self,
+        &mut self,
         features: F,
         allowed_features: &AllowedFeatures,
         bundle_name: &str,

@@ -1,6 +1,10 @@
 # build_safely CHANGELOG
 
-## [v0.5.5]
+## [v0.6.0]
+
+### Breaking changes
+
+- `emit_unstable_feature` now takes `&mut AutoCfg` and sets the edition to 2024 if no edition has been explicity set.
 
 ### New features
 
