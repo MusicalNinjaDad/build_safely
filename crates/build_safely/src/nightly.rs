@@ -130,7 +130,12 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_can_vector)]`
     /// - this gates [`std::io::Read::is_read_vectored`] & [`std::io::Write::is_write_vectored`]
     can_vector,
-    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
+    /// ## Provides cfg flags for feature [`can_vector`](https://github.com/rust-lang/rust/issues/45040)
+    /// - `#![cfg_attr(unstable_const_ops, feature(const_ops))]`
+    /// - `#[cfg(has_const_ops)]`
+    /// - Note: `const_ops` requires `const_trait_impl` to be enabled
+    const_ops,
+    /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/143802)
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
@@ -181,6 +186,7 @@ impl UnstableFeature {
             "assert_matches" => Self::assert_matches,
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
+            "const_ops" => Self::const_ops,
             "doc_notable_trait" => Self::doc_notable_trait,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
@@ -309,6 +315,27 @@ fn main() {
 use std::io::Read;
 fn main() {
     std::io::empty().is_read_vectored();
+}
+"#;
+    }
+
+    pub mod const_ops {
+        // requires: feature(const_trait_impl)
+        // #![allow(stable_features)] may be duplicated by make_probe
+        pub const AVAILABLE: &str = r#"
+#![allow(clippy::duplicated_attributes)]
+#![allow(stable_features)]        
+#![feature(const_trait_impl)]
+use std::ops::Add;
+struct Left(u32);
+struct Right(u32);
+
+const impl Add<Right> for Left {
+    type Output = Self;
+
+    fn add(self, rhs: Right) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
 }
 "#;
     }
@@ -468,6 +495,20 @@ impl Nightly for AutoCfg {
             UnstableFeature::can_vector => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::can_vector::AVAILABLE)
+            }
+            UnstableFeature::const_ops => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::adt_const_params,
+                    allowed_features.includes(&UnstableFeature::adt_const_params),
+                    None,
+                ) {
+                    Some("#![feature(const_trait_impl)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(ac, &feature, allowed, probes::const_ops::AVAILABLE)
             }
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);

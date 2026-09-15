@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.5.5]
+
+### New features
+
+- Added `UnstableFeature::{const_ops}`
+
 ## [v0.5.4]
 
 ### Bugfixes
