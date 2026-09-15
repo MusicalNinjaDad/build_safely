@@ -1,5 +1,15 @@
 # build_safely CHANGELOG
 
+## [v0.6.0]
+
+### Breaking changes
+
+- `emit_unstable_feature` now takes `&mut AutoCfg` and sets the edition to 2024 if no edition has been explicitly set.
+
+### New features
+
+- Added `UnstableFeature::{const_ops, const_trait_impl, default_field_values, exact_size_is_empty, integer_cast_extras, integer_casts, iter_array_chunks, iter_next_chunk, negative_impls, path_absolute_method, try_blocks_heterogeneous}`
+
 ## [v0.5.4]
 
 ### Bugfixes

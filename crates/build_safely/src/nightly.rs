@@ -17,7 +17,10 @@
 //! fn main() -> Result<()> {
 //!     // get a new AutoCfg or provide a valuable error
 //!     // rather than panicing
-//!     let ac = AutoCfg::new()?;
+//!     //
+//!     // We require `mut` as we set edition 2024 by default, unless you have
+//!     // explicitly called `ac.set_edition(...)`
+//!     let mut ac = AutoCfg::new()?;
 //!
 //!     // check to see if the downstream crate has defined
 //!     // `unstable.allow-features` in `.cargo/config.toml`.
@@ -130,18 +133,62 @@ pub enum UnstableFeature {
     /// - `#[cfg(has_can_vector)]`
     /// - this gates [`std::io::Read::is_read_vectored`] & [`std::io::Write::is_write_vectored`]
     can_vector,
+    /// ## Provides cfg flags for feature [`const_ops`](https://github.com/rust-lang/rust/issues/143802)
+    /// - `#![cfg_attr(unstable_const_ops, feature(const_ops))]`
+    /// - `#[cfg(has_const_ops)]`
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - Note: `const_ops` requires `const_trait_impl` to be enabled
+    const_ops,
+    /// ## Provides cfg flags for feature [`const_trait_impl`](https://github.com/rust-lang/rust/issues/143874)
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - `#[cfg(has_const_trait_impl)]`
+    const_trait_impl,
+    /// ## Provides cfg flags for feature [`default_field_values`](https://github.com/rust-lang/rust/issues/132162)
+    /// - `#![cfg_attr(unstable_default_field_values, feature(default_field_values))]`
+    /// - `#[cfg(has_default_field_values)]`
+    default_field_values,
     /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
+    /// ## Provides cfg flags for feature [`exact_size_is_empty`](https://github.com/rust-lang/rust/issues/35428)
+    /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
+    /// - `#[cfg(has_exact_size_is_empty)]`
+    exact_size_is_empty,
+    /// ## Provides cfg flags for feature [`integer_cast_extras`](https://github.com/rust-lang/rust/issues/154650)
+    /// - `#![cfg_attr(unstable_integer_cast_extras, feature(integer_cast_extras))]`
+    /// - `#[cfg(has_integer_cast_extras)]`
+    /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
+    /// - Note: `integer_cast_extras` requires `integer_casts` to be enabled
+    integer_cast_extras,
+    /// ## Provides cfg flags for feature [`integer_casts`](https://github.com/rust-lang/rust/issues/157388)
+    /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
+    /// - `#[cfg(has_integer_casts)]`
+    integer_casts,
+    /// ## Provides cfg flags for feature [`iter_array_chunks`](https://github.com/rust-lang/rust/issues/100450)
+    /// - `#![cfg_attr(unstable_iter_array_chunks, feature(iter_array_chunks))]`
+    /// - `#[cfg(has_iter_array_chunks)]`
+    iter_array_chunks,
+    /// ## Provides cfg flags for feature [`iter_next_chunk`](https://github.com/rust-lang/rust/issues/98326)
+    /// - `#![cfg_attr(unstable_iter_next_chunk, feature(iter_next_chunk))]`
+    /// - `#[cfg(has_iter_next_chunk)]`
+    iter_next_chunk,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
     iterator_try_collect,
+    /// ## Provides cfg flags for feature [`negative_impls`](https://github.com/rust-lang/rust/issues/68318)
+    /// - `#![cfg_attr(unstable_negative_impls, feature(negative_impls))]`
+    /// - `#[cfg(has_negative_impls)]`
+    negative_impls,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_never_type, feature(never_type))]`
     /// - `#[cfg(has_never_type)]`
     never_type,
+    /// ## Provides cfg flags for feature [`path_absolute_method`](https://github.com/rust-lang/rust/issues/153328)
+    /// - `#![cfg_attr(unstable_path_absolute_method, feature(path_absolute_method))]`
+    /// - `#[cfg(has_path_absolute_method)]`
+    path_absolute_method,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
@@ -150,6 +197,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
     /// - `#[cfg(has_strip_circumfix)]`
     strip_circumfix,
+    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/149488)
+    /// - `#![cfg_attr(unstable_try_blocks_heterogeneous, feature(try_blocks_heterogeneous))]`
+    /// - `#[cfg(has_try_blocks_heterogeneous)]`
+    try_blocks_heterogeneous,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_try_trait_v2, feature(try_trait_v2))]`
     /// - `#[cfg(has_try_trait_v2)]`
@@ -181,11 +232,22 @@ impl UnstableFeature {
             "assert_matches" => Self::assert_matches,
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
+            "const_ops" => Self::const_ops,
+            "const_trait_impl" => Self::const_trait_impl,
+            "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
+            "exact_size_is_empty" => Self::exact_size_is_empty,
+            "integer_cast_extras" => Self::integer_cast_extras,
+            "integer_casts" => Self::integer_casts,
+            "iter_array_chunks" => Self::iter_array_chunks,
+            "iter_next_chunk" => Self::iter_next_chunk,
             "iterator_try_collect" => Self::iterator_try_collect,
+            "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
+            "path_absolute_method" => Self::path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
+            "try_blocks_heterogeneous" => Self::try_blocks_heterogeneous,
             "try_trait_v2" => Self::try_trait_v2,
             "try_trait_v2_residual" => Self::try_trait_v2_residual,
             "unsized_const_params" => Self::unsized_const_params,
@@ -313,10 +375,112 @@ fn main() {
 "#;
     }
 
+    pub mod const_ops {
+        // requires: feature(const_trait_impl)
+        // #![allow(stable_features)] may be duplicated by make_probe
+        pub const AVAILABLE: &str = r#"
+#![allow(clippy::duplicated_attributes)]
+#![allow(stable_features)]        
+#![feature(const_trait_impl)]
+use std::ops::Add;
+struct Left(u32);
+struct Right(u32);
+
+const impl Add<Right> for Left {
+    type Output = Self;
+
+    fn add(self, rhs: Right) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+"#;
+    }
+
+    pub mod default_field_values {
+        pub const AVAILABLE: &str = r#"
+struct Counter {
+    inner: usize = 1,
+}
+"#;
+    }
+
+    pub mod const_trait_impl {
+        pub const AVAILABLE: &str = r#"
+struct Thing;
+const trait Foo {}
+const impl Foo for Thing {}
+"#;
+    }
+
     pub mod doc_notable_trait {
         pub const AVAILABLE: &str = r#"
 #[doc(notable_trait)]
 trait Foo {}
+"#;
+    }
+
+    pub mod exact_size_is_empty {
+        pub const AVAILABLE: &str = r#"
+struct Empty;
+
+impl Iterator for Empty {
+    type Item = ();
+    fn next(&mut self) -> Option<Self::Item> {
+        None
+    }
+}
+
+impl ExactSizeIterator for Empty {
+    fn len(&self) -> usize {
+        0
+    }
+    fn is_empty(&self) -> bool {
+        true
+    }
+}
+
+fn empty() {
+    let x = Empty;
+    let _ = x.is_empty();
+}
+"#;
+    }
+
+    pub mod integer_cast_extras {
+        pub const AVAILABLE: &str = r#"
+#![allow(clippy::duplicated_attributes)]
+#![allow(stable_features)]
+#![feature(integer_casts)]
+fn integer_cast_extras() {
+    let _: u32 = 0_i32.strict_cast_unsigned();
+}
+"#;
+    }
+
+    pub mod integer_casts {
+        pub const AVAILABLE: &str = r#"
+fn integer_casts() {
+    let _: u32 = 0_usize.strict_cast();
+}
+"#;
+    }
+
+    pub mod iter_array_chunks {
+        pub const AVAILABLE: &str = r#"
+fn iter_array_chunks() {
+    let x = [0,1,2,3,4];
+    let _ = x.iter().array_chunks::<2>();
+}
+"#;
+    }
+
+    pub mod iter_next_chunk {
+        pub const AVAILABLE: &str = r#"
+fn iter_next_chunk() {
+    let x = [0,1,2,3,4];
+    let _ = x.iter().next_chunk::<2>();
+    let _ = x.iter().next_chunk_back::<2>();
+}
 "#;
     }
 
@@ -329,9 +493,25 @@ fn try_collect() {
 "#;
     }
 
+    pub mod negative_impls {
+        pub const AVAILABLE: &str = r#"
+struct Prisoner;
+impl !Send for Prisoner {}
+"#;
+    }
+
     pub mod never_type {
         pub const AVAILABLE: &str = r#"
 type Bang = !;
+"#;
+    }
+
+    pub mod path_absolute_method {
+        pub const AVAILABLE: &str = r#"
+use std::path::PathBuf;
+fn path_absolute_method() {
+    let _ = PathBuf::new().absolute();
+}
 "#;
     }
 
@@ -347,6 +527,17 @@ use proc_macro::Diagnostic;
 fn main() {
     let s = "foo";
     let _ = s.strip_circumfix("f", "o");
+}
+"#;
+    }
+
+    pub mod try_blocks_heterogeneous {
+        pub const AVAILABLE: &str = r#"
+fn try_blocks_heterogeneous() {
+    let _ = try bikeshed Result<_, u16> {
+        let _ = Err(5_u8)?;
+        let _ = Err(6_u16)?;
+    };
 }
 "#;
     }
@@ -410,8 +601,9 @@ pub trait Nightly {
     /// - If you need to test that a feature is available in order to cfg-gate your code and it is not
     ///   on the list of [known features](UnstableFeature), please raise a PR with a suggested probe.
     /// - Returns `true` if `has_...` has been set. This means `OtherFeature` will always return `false`
+    /// - Will use edition 2024 for probes, unless you have specifically set an edition with [AutoCfg::set_edition]
     fn emit_unstable_feature(
-        &self,
+        &mut self,
         feature: UnstableFeature,
         allowed_features: &AllowedFeatures,
     ) -> bool;
@@ -424,7 +616,7 @@ pub trait Nightly {
     /// - This will always return false if any of the features are
     ///   [`OtherFeature`](UnstableFeature::OtherFeature)
     fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
-        &self,
+        &mut self,
         features: F,
         allowed_features: &AllowedFeatures,
         bundle_name: &str,
@@ -433,14 +625,19 @@ pub trait Nightly {
 
 impl Nightly for AutoCfg {
     fn emit_unstable_feature(
-        &self,
+        &mut self,
         feature: UnstableFeature,
         allowed_features: &AllowedFeatures,
     ) -> bool {
         // show in `cargo build -vv`
         dbg!(&feature);
 
+        if self.edition().is_none() {
+            self.set_edition(Some("2024".to_string()));
+        }
+
         let ac = self;
+
         let allowed = allowed_features.includes(&feature);
         match feature {
             UnstableFeature::adt_const_params => {
@@ -448,14 +645,14 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::adt_const_params::AVAILABLE)
             }
             UnstableFeature::assert_matches => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 autocfg::emit_possibility("assert_matches_location, values(\"root\", \"module\")");
-                if self
+                if ac
                     .probe_raw(&make_probe(&feature, allowed, probes::assert_matches::ROOT))
                     .is_ok()
                 {
                     autocfg::emit("assert_matches_location=\"root\"");
-                } else if allowed && self.probe_raw(probes::assert_matches::MODULE).is_ok() {
+                } else if allowed && ac.probe_raw(probes::assert_matches::MODULE).is_ok() {
                     //    ^^^^^^^ assert_matches was stabilised in root
                     autocfg::emit("assert_matches_location=\"module\"");
                 }
@@ -469,12 +666,79 @@ impl Nightly for AutoCfg {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::can_vector::AVAILABLE)
             }
+            UnstableFeature::const_ops => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::const_trait_impl,
+                    allowed_features.includes(&UnstableFeature::const_trait_impl),
+                    None,
+                ) {
+                    Some("#![feature(const_trait_impl)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(ac, &feature, allowed, probes::const_ops::AVAILABLE)
+            }
+            UnstableFeature::const_trait_impl => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::const_trait_impl::AVAILABLE)
+            }
+            UnstableFeature::default_field_values => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::default_field_values::AVAILABLE,
+                )
+            }
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
             }
+            UnstableFeature::exact_size_is_empty => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::exact_size_is_empty::AVAILABLE,
+                )
+            }
+            UnstableFeature::integer_cast_extras => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::integer_casts,
+                    allowed_features.includes(&UnstableFeature::integer_casts),
+                    None,
+                ) {
+                    Some("#![feature(integer_casts)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::integer_cast_extras::AVAILABLE,
+                )
+            }
+            UnstableFeature::integer_casts => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::integer_casts::AVAILABLE)
+            }
+            UnstableFeature::iter_array_chunks => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::iter_array_chunks::AVAILABLE)
+            }
+            UnstableFeature::iter_next_chunk => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::iter_next_chunk::AVAILABLE)
+            }
             UnstableFeature::iterator_try_collect => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -482,9 +746,22 @@ impl Nightly for AutoCfg {
                     probes::iterator_try_collect::AVAILABLE,
                 )
             }
+            UnstableFeature::negative_impls => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::negative_impls::AVAILABLE)
+            }
             UnstableFeature::never_type => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
+            }
+            UnstableFeature::path_absolute_method => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::path_absolute_method::AVAILABLE,
+                )
             }
             UnstableFeature::proc_macro_diagnostic => {
                 unstable(ac, &feature, allowed, Some("extern crate proc_macro;"));
@@ -499,12 +776,21 @@ impl Nightly for AutoCfg {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
             }
+            UnstableFeature::try_blocks_heterogeneous => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::try_blocks_heterogeneous::AVAILABLE,
+                )
+            }
             UnstableFeature::try_trait_v2 => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::try_trait_v2::AVAILABLE)
             }
             UnstableFeature::try_trait_v2_residual => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 has(
                     ac,
                     &feature,
@@ -536,14 +822,14 @@ impl Nightly for AutoCfg {
                 has(ac, &feature, allowed, probes::write_all_vectored::AVAILABLE)
             }
             UnstableFeature::OtherFeature(_) => {
-                unstable(self, &feature, allowed, None);
+                unstable(ac, &feature, allowed, None);
                 false
             }
         }
     }
 
     fn emit_unstable_feature_bundle<F: IntoIterator<Item = UnstableFeature>>(
-        &self,
+        &mut self,
         features: F,
         allowed_features: &AllowedFeatures,
         bundle_name: &str,

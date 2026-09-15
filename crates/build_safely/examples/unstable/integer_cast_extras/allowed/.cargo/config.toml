@@ -1,0 +1,1 @@
+unstable.allow-features = ["integer_casts", "integer_cast_extras"]

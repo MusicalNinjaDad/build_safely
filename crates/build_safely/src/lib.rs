@@ -22,7 +22,10 @@
 //!
 //!     // get a new AutoCfg or provide a valuable error
 //!     // rather than panicking.
-//!     let ac = AutoCfg::new()?;
+//!     //
+//!     // We require `mut` as we set edition 2024 by default, unless you have
+//!     // explicitly called `ac.set_edition(...)`
+//!     let mut ac = AutoCfg::new()?;
 //!
 //!     // check to see if the downstream crate has defined
 //!     // `unstable.allow-features` in `.cargo/config.toml`.
