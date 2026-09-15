@@ -174,6 +174,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
     iterator_try_collect,
+    /// ## Provides cfg flags for feature [`negative_impls`](https://github.com/rust-lang/rust/issues/68318)
+    /// - `#![cfg_attr(unstable_negative_impls, feature(negative_impls))]`
+    /// - `#[cfg(has_negative_impls)]`
+    negative_impls,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_never_type, feature(never_type))]`
     /// - `#[cfg(has_never_type)]`
@@ -227,6 +231,7 @@ impl UnstableFeature {
             "iter_array_chunks" => Self::iter_array_chunks,
             "iter_next_chunk" => Self::iter_next_chunk,
             "iterator_try_collect" => Self::iterator_try_collect,
+            "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
@@ -475,6 +480,13 @@ fn try_collect() {
 "#;
     }
 
+    pub mod negative_impls {
+        pub const AVAILABLE: &str = r#"
+struct Prisoner;
+impl !Send for Prisoner {}
+"#;
+    }
+
     pub mod never_type {
         pub const AVAILABLE: &str = r#"
 type Bang = !;
@@ -694,6 +706,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::iterator_try_collect::AVAILABLE,
                 )
+            }
+            UnstableFeature::negative_impls => {
+                unstable(self, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::negative_impls::AVAILABLE)
             }
             UnstableFeature::never_type => {
                 unstable(self, &feature, allowed, None);
