@@ -194,6 +194,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
     /// - `#[cfg(has_strip_circumfix)]`
     strip_circumfix,
+    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/149488)
+    /// - `#![cfg_attr(unstable_try_blocks_heterogeneous, feature(try_blocks_heterogeneous))]`
+    /// - `#[cfg(has_try_blocks_heterogeneous)]`
+    try_blocks_heterogeneous,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_try_trait_v2, feature(try_trait_v2))]`
     /// - `#[cfg(has_try_trait_v2)]`
@@ -220,7 +224,6 @@ pub enum UnstableFeature {
 impl UnstableFeature {
     // This is not pub or trait From to avoid risk of typos
     fn from(feature: &str) -> Self {
-        use UnstableFeature::*;
         match feature {
             "adt_const_params" => Self::adt_const_params,
             "assert_matches" => Self::assert_matches,
@@ -238,9 +241,10 @@ impl UnstableFeature {
             "iterator_try_collect" => Self::iterator_try_collect,
             "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
-            "path_absolute_method" => path_absolute_method,
+            "path_absolute_method" => Self::path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
+            "try_blocks_heterogeneous" => Self::try_blocks_heterogeneous,
             "try_trait_v2" => Self::try_trait_v2,
             "try_trait_v2_residual" => Self::try_trait_v2_residual,
             "unsized_const_params" => Self::unsized_const_params,
@@ -524,6 +528,17 @@ fn main() {
 "#;
     }
 
+    pub mod try_blocks_heterogeneous {
+        pub const AVAILABLE: &str = r#"
+fn try_blocks_heterogeneous() {
+    let _ = try bikeshed Result<_, u16> {
+        let _ = Err(5_u8)?;
+        let _ = Err(6_u16)?;
+    };
+}
+"#;
+    }
+
     pub mod try_trait_v2 {
         pub const AVAILABLE: &str = r#"
 use std::ops::Try;
@@ -613,7 +628,16 @@ impl Nightly for AutoCfg {
         // show in `cargo build -vv`
         dbg!(&feature);
 
-        let ac = self;
+        let ac2024 = if self.edition().is_none() {
+            let mut ac2024 = self.clone();
+            ac2024.set_edition(Some("2024".to_string()));
+            Some(ac2024)
+        } else {
+            None
+        };
+
+        let ac = ac2024.as_ref().unwrap_or(self);
+
         let allowed = allowed_features.includes(&feature);
         match feature {
             UnstableFeature::adt_const_params => {
@@ -751,6 +775,15 @@ impl Nightly for AutoCfg {
             UnstableFeature::strip_circumfix => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
+            }
+            UnstableFeature::try_blocks_heterogeneous => {
+                unstable(self, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::try_blocks_heterogeneous::AVAILABLE,
+                )
             }
             UnstableFeature::try_trait_v2 => {
                 unstable(self, &feature, allowed, None);
