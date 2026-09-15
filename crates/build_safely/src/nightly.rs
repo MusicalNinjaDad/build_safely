@@ -152,7 +152,7 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
     /// - `#[cfg(has_exact_size_is_empty)]`
     exact_size_is_empty,
-    /// ## Provides cfg flags:
+    /// ## Provides cfg flags for feature [`integer_casts`](https://github.com/rust-lang/rust/issues/157388)
     /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
     /// - `#[cfg(has_integer_casts)]`
     integer_casts,
