@@ -4,7 +4,7 @@
 
 ### New features
 
-- Added `UnstableFeature::{const_ops, const_trait_impl, default_field_values, exact_size_is_empty, integer_cast_extras, integer_casts, iter_array_chunks, iter_next_chunk, negative_impls}`
+- Added `UnstableFeature::{const_ops, const_trait_impl, default_field_values, exact_size_is_empty, integer_cast_extras, integer_casts, iter_array_chunks, iter_next_chunk, negative_impls, path_absolute_method}`
 
 ## [v0.5.4]
 

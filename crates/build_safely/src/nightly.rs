@@ -182,6 +182,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_never_type, feature(never_type))]`
     /// - `#[cfg(has_never_type)]`
     never_type,
+    /// ## Provides cfg flags for feature [`path_absolute_method`](https://github.com/rust-lang/rust/issues/153328)
+    /// - `#![cfg_attr(unstable_path_absolute_method, feature(path_absolute_method))]`
+    /// - `#[cfg(has_path_absolute_method)]`
+    path_absolute_method,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
@@ -216,6 +220,7 @@ pub enum UnstableFeature {
 impl UnstableFeature {
     // This is not pub or trait From to avoid risk of typos
     fn from(feature: &str) -> Self {
+        use UnstableFeature::*;
         match feature {
             "adt_const_params" => Self::adt_const_params,
             "assert_matches" => Self::assert_matches,
@@ -233,6 +238,7 @@ impl UnstableFeature {
             "iterator_try_collect" => Self::iterator_try_collect,
             "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
+            "path_absolute_method" => path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
             "try_trait_v2" => Self::try_trait_v2,
@@ -493,6 +499,15 @@ type Bang = !;
 "#;
     }
 
+    pub mod path_absolute_method {
+        pub const AVAILABLE: &str = r#"
+use std::path::PathBuf;
+fn path_absolute_method() {
+    let _ = PathBuf::new().absolute();
+}
+"#;
+    }
+
     pub mod proc_macro_diagnostic {
         pub const AVAILABLE: &str = r#"
 extern crate proc_macro;
@@ -714,6 +729,15 @@ impl Nightly for AutoCfg {
             UnstableFeature::never_type => {
                 unstable(self, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
+            }
+            UnstableFeature::path_absolute_method => {
+                unstable(self, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::path_absolute_method::AVAILABLE,
+                )
             }
             UnstableFeature::proc_macro_diagnostic => {
                 unstable(ac, &feature, allowed, Some("extern crate proc_macro;"));
