@@ -627,8 +627,6 @@ impl Nightly for AutoCfg {
                 )
             }
             UnstableFeature::integer_cast_extras => {
-                dbg!(allowed_features);
-                dbg!("FOOO");
                 let extra_lines = if unstable(
                     ac,
                     &UnstableFeature::integer_casts,
