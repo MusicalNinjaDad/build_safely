@@ -152,6 +152,12 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
     /// - `#[cfg(has_exact_size_is_empty)]`
     exact_size_is_empty,
+    /// ## Provides cfg flags for feature [`integer_cast_extras`](https://github.com/rust-lang/rust/issues/154650)
+    /// - `#![cfg_attr(unstable_integer_cast_extras, feature(integer_cast_extras))]`
+    /// - `#[cfg(has_integer_cast_extras)]`
+    /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
+    /// - Note: `integer_cast_extras` requires `integer_casts` to be enabled
+    integer_cast_extras,
     /// ## Provides cfg flags for feature [`integer_casts`](https://github.com/rust-lang/rust/issues/157388)
     /// - `#![cfg_attr(unstable_integer_casts, feature(integer_casts))]`
     /// - `#[cfg(has_integer_casts)]`
@@ -208,6 +214,7 @@ impl UnstableFeature {
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
             "exact_size_is_empty" => Self::exact_size_is_empty,
+            "integer_cast_extras" => Self::integer_cast_extras,
             "integer_casts" => Self::integer_casts,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
@@ -411,6 +418,17 @@ fn empty() {
 "#;
     }
 
+    pub mod integer_cast_extras {
+        pub const AVAILABLE: &str = r#"
+#![allow(clippy::duplicated_attributes)]
+#![allow(stable_features)]
+#![feature(integer_casts)]
+fn integer_cast_extras() {
+    let _: u32 = 0_i32.strict_cast_unsigned();
+}
+"#;
+    }
+
     pub mod integer_casts {
         pub const AVAILABLE: &str = r#"
 fn integer_casts() {
@@ -606,6 +624,27 @@ impl Nightly for AutoCfg {
                     &feature,
                     allowed,
                     probes::exact_size_is_empty::AVAILABLE,
+                )
+            }
+            UnstableFeature::integer_cast_extras => {
+                dbg!(allowed_features);
+                dbg!("FOOO");
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::integer_casts,
+                    allowed_features.includes(&UnstableFeature::integer_casts),
+                    None,
+                ) {
+                    Some("#![feature(integer_casts)]")
+                } else {
+                    None
+                };
+                unstable(self, &feature, allowed, extra_lines);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::integer_cast_extras::AVAILABLE,
                 )
             }
             UnstableFeature::integer_casts => {
