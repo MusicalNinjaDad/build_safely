@@ -24,7 +24,7 @@
 //!     // rather than panicking.
 //!     //
 //!     // We require `mut` as we set edition 2024 by default, unless you have
-//!     // specifically called `ac.set_edition(...)`
+//!     // explicitly called `ac.set_edition(...)`
 //!     let mut ac = AutoCfg::new()?;
 //!
 //!     // check to see if the downstream crate has defined

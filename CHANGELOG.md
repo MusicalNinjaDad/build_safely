@@ -4,7 +4,7 @@
 
 ### Breaking changes
 
-- `emit_unstable_feature` now takes `&mut AutoCfg` and sets the edition to 2024 if no edition has been explicity set.
+- `emit_unstable_feature` now takes `&mut AutoCfg` and sets the edition to 2024 if no edition has been explicitly set.
 
 ### New features
 
