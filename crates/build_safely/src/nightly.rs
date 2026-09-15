@@ -148,6 +148,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
+    /// ## Provides cfg flags for feature [`exact_size_is_empty`](https://github.com/rust-lang/rust/issues/35428)
+    /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
+    /// - `#[cfg(has_exact_size_is_empty)]`
+    exact_size_is_empty,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
@@ -199,6 +203,7 @@ impl UnstableFeature {
             "const_trait_impl" => Self::const_trait_impl,
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
+            "exact_size_is_empty" => Self::exact_size_is_empty,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
@@ -371,6 +376,33 @@ const impl Foo for Thing {}
         pub const AVAILABLE: &str = r#"
 #[doc(notable_trait)]
 trait Foo {}
+"#;
+    }
+
+    pub mod exact_size_is_empty {
+        pub const AVAILABLE: &str = r#"
+struct Empty;
+
+impl Iterator for Empty {
+    type Item = ();
+    fn next(&mut self) -> Option<Self::Item> {
+        None
+    }
+}
+
+impl ExactSizeIterator for Empty {
+    fn len(&self) -> usize {
+        0
+    }
+    fn is_empty(&self) -> bool {
+        true
+    }
+}
+
+fn empty() {
+    let x = Empty;
+    let _ = x.is_empty();
+}
 "#;
     }
 
@@ -553,6 +585,15 @@ impl Nightly for AutoCfg {
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
+            }
+            UnstableFeature::exact_size_is_empty => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::exact_size_is_empty::AVAILABLE,
+                )
             }
             UnstableFeature::iterator_try_collect => {
                 unstable(self, &feature, allowed, None);
