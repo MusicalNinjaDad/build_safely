@@ -140,6 +140,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - `#[cfg(has_const_trait_impl)]`
     const_trait_impl,
+    /// ## Provides cfg flags for feature [`default_field_values`](https://github.com/rust-lang/rust/issues/132162)
+    /// - `#![cfg_attr(unstable_default_field_values, feature(default_field_values))]`
+    /// - `#[cfg(has_default_field_values)]`
+    default_field_values,
     /// ## Provides cfg flags for feature [`doc_notable_trait`](https://github.com/rust-lang/rust/issues/45040)
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
@@ -193,6 +197,7 @@ impl UnstableFeature {
             "can_vector" => Self::can_vector,
             "const_ops" => Self::const_ops,
             "const_trait_impl" => Self::const_trait_impl,
+            "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
             "iterator_try_collect" => Self::iterator_try_collect,
             "never_type" => Self::never_type,
@@ -342,6 +347,14 @@ const impl Add<Right> for Left {
     fn add(self, rhs: Right) -> Self::Output {
         Self(self.0 + rhs.0)
     }
+}
+"#;
+    }
+
+    pub mod default_field_values {
+        pub const AVAILABLE: &str = r#"
+struct Counter {
+    inner: usize = 1,
 }
 "#;
     }
@@ -527,6 +540,15 @@ impl Nightly for AutoCfg {
             UnstableFeature::const_trait_impl => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::const_trait_impl::AVAILABLE)
+            }
+            UnstableFeature::default_field_values => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::default_field_values::AVAILABLE,
+                )
             }
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);

@@ -4,7 +4,7 @@
 
 ### New features
 
-- Added `UnstableFeature::{const_ops, const_trait_impl}`
+- Added `UnstableFeature::{const_ops, const_trait_impl, default_field_values}`
 
 ## [v0.5.4]
 
