@@ -4,7 +4,7 @@
 
 ### New features
 
-- Added `UnstableFeature::{const_ops}`
+- Added `UnstableFeature::{const_ops, const_trait_impl}`
 
 ## [v0.5.4]
 
