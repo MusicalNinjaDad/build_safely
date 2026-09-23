@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.6.1]
+
+### New features
+
+- Added `UnstableFeature::try_blocks`
+
 ## [v0.6.0]
 
 ### Breaking changes
