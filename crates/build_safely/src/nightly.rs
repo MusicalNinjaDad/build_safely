@@ -197,7 +197,11 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
     /// - `#[cfg(has_strip_circumfix)]`
     strip_circumfix,
-    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/149488)
+    /// ## Provides cfg flags for feature [`try_blocks`](https://github.com/rust-lang/rust/issues/149488)
+    /// - `#![cfg_attr(unstable_try_blocks, feature(try_blocks))]`
+    /// - `#[cfg(has_try_blocks)]`
+    try_blocks,
+    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/154391)
     /// - `#![cfg_attr(unstable_try_blocks_heterogeneous, feature(try_blocks_heterogeneous))]`
     /// - `#[cfg(has_try_blocks_heterogeneous)]`
     try_blocks_heterogeneous,
@@ -247,6 +251,7 @@ impl UnstableFeature {
             "path_absolute_method" => Self::path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
+            "try_blocks" => Self::try_blocks,
             "try_blocks_heterogeneous" => Self::try_blocks_heterogeneous,
             "try_trait_v2" => Self::try_trait_v2,
             "try_trait_v2_residual" => Self::try_trait_v2_residual,
@@ -531,6 +536,17 @@ fn main() {
 "#;
     }
 
+    pub mod try_blocks {
+        pub const AVAILABLE: &str = r#"
+fn try_blocks() {
+    let _ = try {
+        let _ = Err(5_u8)?;
+        let _ = Ok(6_u16)?;
+    };
+}
+"#;
+    }
+
     pub mod try_blocks_heterogeneous {
         pub const AVAILABLE: &str = r#"
 fn try_blocks_heterogeneous() {
@@ -775,6 +791,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::strip_circumfix => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::strip_circumfix::AVAILABLE)
+            }
+            UnstableFeature::try_blocks => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::try_blocks::AVAILABLE)
             }
             UnstableFeature::try_blocks_heterogeneous => {
                 unstable(ac, &feature, allowed, None);
