@@ -94,7 +94,7 @@ use std::{
 /// re-exported from autocfg
 ///
 pub use autocfg::AutoCfg;
-use derive_more::Display;
+use strum::Display;
 #[cfg(test)]
 use strum::EnumIter;
 
@@ -228,12 +228,13 @@ pub enum UnstableFeature {
     /// - this gates [`std::io::Write::write_all_vectored`]
     write_all_vectored,
     /// only provides `unstable_...` - please raise a PR to add a custom probe for `has_...`
+    #[strum(to_string = "{0}")]
     OtherFeature(String),
 }
 
 impl UnstableFeature {
     /// This is not pub or trait From/FromStr to avoid risk of user typos leading to `OtherFeature`
-    /// 
+    ///
     /// We use it solely when processing cargo allowed features. Hard-to-find issues with example
     /// tests not working for specific cases are likely due to a missing / incorrect mapping here.
     fn from(feature: &str) -> Self {
@@ -1048,7 +1049,7 @@ mod tests {
     };
 
     use strum::IntoEnumIterator;
-use tempfile::TempDir;
+    use tempfile::TempDir;
 
     use super::UnstableFeature::*;
     use super::*;
