@@ -95,6 +95,7 @@ use std::{
 ///
 pub use autocfg::AutoCfg;
 use derive_more::Display;
+#[cfg(test)]
 use strum::EnumIter;
 
 use crate::{BuildError, Result, get_var};
@@ -105,7 +106,8 @@ use probes::{has, make_probe, unstable};
 /// If the feature you want is not in this list you can use `Other` to get `unstable_...`
 /// but please also raise a PR (or open an issue) to add a custom probe for `has_...`.
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
-#[derive(Debug, Clone, PartialEq, Eq, Display, EnumIter)]
+#[derive(Debug, Clone, PartialEq, Eq, Display)]
+#[cfg_attr(test, derive(EnumIter))]
 pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
     /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
