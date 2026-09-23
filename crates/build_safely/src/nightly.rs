@@ -229,7 +229,10 @@ pub enum UnstableFeature {
 }
 
 impl UnstableFeature {
-    // This is not pub or trait From to avoid risk of typos
+    /// This is not pub or trait From/FromStr to avoid risk of user typos leading to `OtherFeature`
+    /// 
+    /// We use it solely when processing cargo allowed features. Hard-to-find issues with example
+    /// tests not working for specific cases are likely due to a missing / incorrect mapping here.
     fn from(feature: &str) -> Self {
         match feature {
             "adt_const_params" => Self::adt_const_params,
