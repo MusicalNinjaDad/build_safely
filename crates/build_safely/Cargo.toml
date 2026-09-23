@@ -15,6 +15,7 @@ rust-version.workspace = true
 autocfg.workspace = true
 derive_more.workspace = true
 indexmap.workspace = true
+strum.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true

@@ -95,6 +95,7 @@ use std::{
 ///
 pub use autocfg::AutoCfg;
 use derive_more::Display;
+use strum::EnumIter;
 
 use crate::{BuildError, Result, get_var};
 use probes::{has, make_probe, unstable};
@@ -104,7 +105,7 @@ use probes::{has, make_probe, unstable};
 /// If the feature you want is not in this list you can use `Other` to get `unstable_...`
 /// but please also raise a PR (or open an issue) to add a custom probe for `has_...`.
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
-#[derive(Debug, Clone, PartialEq, Eq, Display)]
+#[derive(Debug, Clone, PartialEq, Eq, Display, EnumIter)]
 pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
     /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
@@ -1044,7 +1045,8 @@ mod tests {
         io::Write,
     };
 
-    use tempfile::TempDir;
+    use strum::IntoEnumIterator;
+use tempfile::TempDir;
 
     use super::UnstableFeature::*;
     use super::*;
@@ -1153,5 +1155,12 @@ use std::assert_matches;
             format!("{}", UnstableFeature::OtherFeature("foo".to_string()))
         );
         assert_eq!("try_trait_v2", format!("{}", UnstableFeature::try_trait_v2))
+    }
+
+    #[test]
+    fn from_str_complete() {
+        for feature in UnstableFeature::iter() {
+            assert_eq!(UnstableFeature::from(feature.to_string().as_str()), feature);
+        }
     }
 }
