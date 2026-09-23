@@ -88,7 +88,7 @@ use indexmap::IndexSet;
 ///   effort on your part. All while respecting any `allow-features` whitelists.
 pub mod prelude {
     pub use crate::nightly::{AutoCfg, Nightly, UnstableFeature::*, cargo_allowed_features};
-    pub use crate::{Result, get_var, split_var};
+    pub use crate::{BuildError, Result, get_var, split_var};
 }
 
 pub mod nightly;

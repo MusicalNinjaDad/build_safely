@@ -5,6 +5,7 @@
 ### New features
 
 - Added `UnstableFeature::try_blocks`
+- Added `BuildError` to `prelude`
 
 ## [v0.6.0]
 
