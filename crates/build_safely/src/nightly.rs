@@ -94,7 +94,9 @@ use std::{
 /// re-exported from autocfg
 ///
 pub use autocfg::AutoCfg;
-use derive_more::Display;
+use strum::Display;
+#[cfg(test)]
+use strum::EnumIter;
 
 use crate::{BuildError, Result, get_var};
 use probes::{has, make_probe, unstable};
@@ -105,6 +107,7 @@ use probes::{has, make_probe, unstable};
 /// but please also raise a PR (or open an issue) to add a custom probe for `has_...`.
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
 #[derive(Debug, Clone, PartialEq, Eq, Display)]
+#[cfg_attr(test, derive(EnumIter))]
 pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
     /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
@@ -225,11 +228,15 @@ pub enum UnstableFeature {
     /// - this gates [`std::io::Write::write_all_vectored`]
     write_all_vectored,
     /// only provides `unstable_...` - please raise a PR to add a custom probe for `has_...`
+    #[strum(to_string = "{0}")]
     OtherFeature(String),
 }
 
 impl UnstableFeature {
-    // This is not pub or trait From to avoid risk of typos
+    /// This is not pub or trait From/FromStr to avoid risk of user typos leading to `OtherFeature`
+    ///
+    /// We use it solely when processing cargo allowed features. Hard-to-find issues with example
+    /// tests not working for specific cases are likely due to a missing / incorrect mapping here.
     fn from(feature: &str) -> Self {
         match feature {
             "adt_const_params" => Self::adt_const_params,
@@ -1041,6 +1048,7 @@ mod tests {
         io::Write,
     };
 
+    use strum::IntoEnumIterator;
     use tempfile::TempDir;
 
     use super::UnstableFeature::*;
@@ -1150,5 +1158,12 @@ use std::assert_matches;
             format!("{}", UnstableFeature::OtherFeature("foo".to_string()))
         );
         assert_eq!("try_trait_v2", format!("{}", UnstableFeature::try_trait_v2))
+    }
+
+    #[test]
+    fn from_str_complete() {
+        for feature in UnstableFeature::iter() {
+            assert_eq!(UnstableFeature::from(feature.to_string().as_str()), feature);
+        }
     }
 }
