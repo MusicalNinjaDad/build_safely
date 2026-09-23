@@ -2,13 +2,7 @@
 #![allow(unused)]
 
 #[cfg(has_negative_impls)]
-mod has {
-    #[test]
-    fn has() {
-        struct Prisoner;
-        impl !Send for Prisoner {}
-    }
-}
+mod has;
 
 #[cfg(not(has_negative_impls))]
 mod has_not {
