@@ -197,11 +197,11 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
     /// - `#[cfg(has_strip_circumfix)]`
     strip_circumfix,
-    /// ## Provides cfg flags for feature [`try_blocks`](https://github.com/rust-lang/rust/issues/149488)
+    /// ## Provides cfg flags for feature [`try_blocks`](https://github.com/rust-lang/rust/issues/154391)
     /// - `#![cfg_attr(unstable_try_blocks, feature(try_blocks))]`
     /// - `#[cfg(has_try_blocks)]`
     try_blocks,
-    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/154391)
+    /// ## Provides cfg flags for feature [`try_blocks_heterogeneous`](https://github.com/rust-lang/rust/issues/149488)
     /// - `#![cfg_attr(unstable_try_blocks_heterogeneous, feature(try_blocks_heterogeneous))]`
     /// - `#[cfg(has_try_blocks_heterogeneous)]`
     try_blocks_heterogeneous,
