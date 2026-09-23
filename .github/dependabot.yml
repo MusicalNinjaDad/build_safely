@@ -1,20 +1,29 @@
 version: 2
 updates:
+
 - package-ecosystem: "cargo"
-  directories:
-    - "ninja-xtask"
-    - "ninja-build_rs"
+  directory: "/"
+  cooldown:
+    default-days: 10
   schedule:
     interval: "daily"
+
 - package-ecosystem: "docker"
   directory: "/.devcontainer"
+  # no cooldown as I own the base image
   schedule:
     interval: "daily"
+  
 - package-ecosystem: "devcontainers"
   directory: "/"
+  cooldown:
+    default-days: 10
   schedule:
     interval: "daily"
+
 - package-ecosystem: "github-actions"
   directory: "/"
+  cooldown:
+    default-days: 10
   schedule:
-    interval: "daily"
+    interval: "weekly"
