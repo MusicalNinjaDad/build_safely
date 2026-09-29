@@ -67,6 +67,7 @@ mod unstable {
 }
 
 /// Features which are stable on nightly, but not yet on beta
+#[cfg(false)]
 mod nightly {
     use super::*;
 
@@ -125,7 +126,6 @@ mod nightly {
     }
 }
 
-#[cfg(false)]
 mod beta {
     use super::*;
 

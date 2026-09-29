@@ -1,10 +1,7 @@
 [workspace]
 members = [
     "crates/*",
-    "crates/build_safely/examples/unstable/*",
-    "crates/build_safely/examples/nightly/*",
-    # "crates/build_safely/examples/beta/*",
-    "crates/build_safely/examples/stable/*",
+    "crates/build_safely/examples/*/*",
 ]
 resolver = "3"
 
