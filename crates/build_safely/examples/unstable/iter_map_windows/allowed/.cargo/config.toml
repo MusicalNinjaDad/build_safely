@@ -1,0 +1,1 @@
+unstable.allow-features = ["iter_map_windows"]

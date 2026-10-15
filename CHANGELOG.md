@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.6.2]
+
+### New features
+
+- Added `UnstableFeature::{exact_div, iter_map_windows}`
+
 ## [v0.6.1]
 
 ### New features
