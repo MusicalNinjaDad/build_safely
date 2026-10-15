@@ -344,6 +344,10 @@ fn cargo_foo(
     config_dir: Option<&'static str>,
     channel_override: Option<&'static str>,
 ) -> Command {
+    dbg!(&subcommand);
+    dbg!(&example);
+    dbg!(&config_dir);
+    dbg!(&channel_override);
     let mut cargo_foo = Command::new("cargo");
     cargo_foo
         .args(subcommand)
@@ -374,5 +378,6 @@ fn cargo_foo(
     if let Some(config) = config_dir {
         cargo_foo.env("BUILD_SAFELY_CARGO_CONFIG_DIR", example.join(config));
     };
+    dbg!(&cargo_foo);
     cargo_foo
 }

@@ -154,6 +154,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
+    /// ## Provides cfg flags for feature [`exact_div`](https://github.com/rust-lang/rust/issues/139911)
+    /// - `#![cfg_attr(unstable_exact_div, feature(exact_div))]`
+    /// - `#[cfg(exact_div)]`
+    exact_div,
     /// ## Provides cfg flags for feature [`exact_size_is_empty`](https://github.com/rust-lang/rust/issues/35428)
     /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
     /// - `#[cfg(has_exact_size_is_empty)]`
@@ -247,6 +251,7 @@ impl UnstableFeature {
             "const_trait_impl" => Self::const_trait_impl,
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
+            "exact_div" => Self::exact_div,
             "exact_size_is_empty" => Self::exact_size_is_empty,
             "integer_cast_extras" => Self::integer_cast_extras,
             "integer_casts" => Self::integer_casts,
@@ -428,6 +433,14 @@ const impl Foo for Thing {}
         pub const AVAILABLE: &str = r#"
 #[doc(notable_trait)]
 trait Foo {}
+"#;
+    }
+
+    pub mod exact_div {
+        pub const AVAILABLE: &str = r#"
+fn half(n: usize) -> Option<usize> {
+    n.div_exact(2)
+}
 "#;
     }
 
@@ -719,6 +732,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
+            }
+            UnstableFeature::exact_div => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::exact_div::AVAILABLE)
             }
             UnstableFeature::exact_size_is_empty => {
                 unstable(ac, &feature, allowed, None);
