@@ -180,6 +180,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_iter_next_chunk, feature(iter_next_chunk))]`
     /// - `#[cfg(has_iter_next_chunk)]`
     iter_next_chunk,
+    /// ## Provides cfg flags for feature [`iter_map_windows`](https://github.com/rust-lang/rust/issues/87155)
+    /// - `#![cfg_attr(unstable_iter_map_windows, feature(iter_map_windows))]`
+    /// - `#[cfg(has_iter_map_windows)]`
+    iter_map_windows,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_iterator_try_collect, feature(iterator_try_collect))]`
     /// - `#[cfg(has_iterator_try_collect)]`
@@ -257,6 +261,7 @@ impl UnstableFeature {
             "integer_casts" => Self::integer_casts,
             "iter_array_chunks" => Self::iter_array_chunks,
             "iter_next_chunk" => Self::iter_next_chunk,
+            "iter_map_windows" => Self::iter_map_windows,
             "iterator_try_collect" => Self::iterator_try_collect,
             "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
@@ -505,6 +510,14 @@ fn iter_next_chunk() {
     let x = [0,1,2,3,4];
     let _ = x.iter().next_chunk::<2>();
     let _ = x.iter().next_chunk_back::<2>();
+}
+"#;
+    }
+
+    pub mod iter_map_windows {
+        pub const AVAILABLE: &str = r#"
+fn iter_map_windows() {
+    let _ = "abcd".chars().map_windows(|[x, y]| format!("{}+{}", x, y));
 }
 "#;
     }
@@ -776,6 +789,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::iter_next_chunk => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::iter_next_chunk::AVAILABLE)
+            }
+            UnstableFeature::iter_map_windows => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::iter_map_windows::AVAILABLE)
             }
             UnstableFeature::iterator_try_collect => {
                 unstable(ac, &feature, allowed, None);
