@@ -553,9 +553,10 @@ type Bang = !;
     pub mod os_str_split_at {
         pub const AVAILABLE: &str = r#"
 fn os_str_split_at() {
+    use std::ffi::OsStr;
     let os_str = OsStr::new("foo");
     let (_f, _oo) = os_str.split_at(1);
-};
+}
 "#;
     }
 
