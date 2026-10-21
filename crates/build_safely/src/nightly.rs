@@ -197,6 +197,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_never_type, feature(never_type))]`
     /// - `#[cfg(has_never_type)]`
     never_type,
+    /// ## Provides cfg flags for feature [`os_str_split_at`](https://github.com/rust-lang/rust/issues/156199)
+    /// - `#![cfg_attr(unstable_os_str_split_at, feature(os_str_split_at))]`
+    /// - `#[cfg(has_os_str_split_at)]`
+    os_str_split_at,
     /// ## Provides cfg flags for feature [`path_absolute_method`](https://github.com/rust-lang/rust/issues/153328)
     /// - `#![cfg_attr(unstable_path_absolute_method, feature(path_absolute_method))]`
     /// - `#[cfg(has_path_absolute_method)]`
@@ -266,6 +270,7 @@ impl UnstableFeature {
             "iterator_try_collect" => Self::iterator_try_collect,
             "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
+            "os_str_split_at" => Self::os_str_split_at,
             "path_absolute_method" => Self::path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
@@ -545,6 +550,15 @@ type Bang = !;
 "#;
     }
 
+    pub mod os_str_split_at {
+        pub const AVAILABLE: &str = r#"
+fn os_str_split_at() {
+    let os_str = OsStr::new("foo");
+    let (_f, _oo) = os_str.split_at(1);
+};
+"#;
+    }
+
     pub mod path_absolute_method {
         pub const AVAILABLE: &str = r#"
 use std::path::PathBuf;
@@ -811,6 +825,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::never_type => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
+            }
+            UnstableFeature::os_str_split_at => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::os_str_split_at::AVAILABLE)
             }
             UnstableFeature::path_absolute_method => {
                 unstable(ac, &feature, allowed, None);
