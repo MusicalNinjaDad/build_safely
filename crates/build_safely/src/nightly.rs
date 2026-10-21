@@ -108,6 +108,7 @@ use probes::{has, make_probe, unstable};
 #[allow(non_camel_case_types, reason = "shadowing feature naming")]
 #[derive(Debug, Clone, PartialEq, Eq, Display)]
 #[cfg_attr(test, derive(EnumIter))]
+#[non_exhaustive]
 pub enum UnstableFeature {
     /// ## Provides cfg flags for feature [`adt_const_params`](https://github.com/rust-lang/rust/issues/95174)
     /// - `#![cfg_attr(unstable_adt_const_params, feature(adt_const_params))]`
