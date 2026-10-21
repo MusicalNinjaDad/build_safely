@@ -1,5 +1,15 @@
 # build_safely CHANGELOG
 
+## [v0.6.3]
+
+### Breaking-ish changes
+
+- `UnstableFeature` marked `#[non-exhaustive]`. Until now, additions were not logged as breaking changes, on the assumption no-one is pattern-matching, therefore this is also not being logged as breaking.
+
+### New features
+
+- Added `UnstableFeature::{os_str_split_at}`
+
 ## [v0.6.2]
 
 ### New features
