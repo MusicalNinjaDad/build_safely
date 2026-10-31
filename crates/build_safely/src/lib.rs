@@ -65,10 +65,11 @@
 //!
 //! Due to limitations in the information provided by cargo:
 //!
-//! - This will obtain config.toml files based upon `OUT_DIR`. If this is not under the project
-//!   root, you can override by providing an alternative path via the environment variable
-//!   `BUILD_SAFELY_CARGO_CONFIG_DIR`. See cargo's documentation on config file hierarchical structure
-//!   for more details.
+//! - This will obtain config.toml files based upon `CARGO_MANIFEST_DIR`, which is guaranteed
+//!   to be within the project tree, unlike `OUT_DIR`, whose location is an internal cargo
+//!   implementation detail, subject to change without notice. You can override by providing
+//!   an alternative path via the environment variable `BUILD_SAFELY_CARGO_CONFIG_DIR`.
+//!   See cargo's documentation on config file hierarchical structure for more details.
 //! - This will not respect additional entries passed at the command line via
 //!   `cargo --config unstable.allow-features=[...]`
 

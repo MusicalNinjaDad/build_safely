@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [Unreleased]
+
+### Bugfixes
+
+- `cargo_allowed_features()` now anchors `cargo config get` at `CARGO_MANIFEST_DIR` instead of `OUT_DIR`, so the `unstable.allow-features` whitelist is still found when the build directory has been relocated outside the project (e.g. via `build.build-dir`, `--target-dir` or `build.target-dir`). The location of `OUT_DIR` is an internal cargo implementation detail and is subject to change without notice (e.g. the new build-dir layout in Cargo 1.100).
+
 ## [v0.6.3]
 
 ### Breaking-ish changes
