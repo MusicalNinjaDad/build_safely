@@ -67,11 +67,20 @@
 //!
 //! Due to limitations in the information provided by cargo:
 //!
-//! - This will obtain config.toml files based upon `CARGO_MANIFEST_DIR`, which is guaranteed
-//!   to be within the project tree, unlike `OUT_DIR`, whose location is an internal cargo
-//!   implementation detail, subject to change without notice. You can override by providing
-//!   an alternative path via the environment variable `BUILD_SAFELY_CARGO_CONFIG_DIR`.
-//!   See cargo's documentation on config file hierarchical structure for more details.
+//! - This will obtain config.toml files based upon `OUT_DIR`. Cargo itself searches for
+//!   config.toml files hierarchically from the current working directory of the cargo
+//!   invocation - which a build script cannot know - so this is an approximation. `OUT_DIR`
+//!   is used as it lives within the target directory of the invoking project, including
+//!   when this crate is a registry dependency, meaning the same config.toml files are
+//!   found as if cargo had been invoked from the project root (the common case).
+//! - If `OUT_DIR` is not under the project root (e.g. you have relocated `build.build-dir`
+//!   or `target-dir` outside the project), you can override by providing an alternative
+//!   path via the environment variable `BUILD_SAFELY_CARGO_CONFIG_DIR`. See cargo's
+//!   documentation on config file hierarchical structure for more details.
+//! - Note that cargo does not read config.toml files from within workspace member crates,
+//!   so an `unstable.allow-features` whitelist in a member crate's own `.cargo/` has no
+//!   effect here - nor on the build itself. Place it in the `.cargo/` of the directory
+//!   you invoke cargo from (typically the workspace root) or in `$CARGO_HOME/config.toml`.
 //! - This will not respect additional entries passed at the command line via
 //!   `cargo --config unstable.allow-features=[...]`
 

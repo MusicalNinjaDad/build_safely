@@ -2,9 +2,9 @@
 
 ## [Unreleased]
 
-### Bugfixes
+### Technical changes
 
-- `cargo_allowed_features()` now anchors `cargo config get` at `CARGO_MANIFEST_DIR` instead of `OUT_DIR`, so the `unstable.allow-features` whitelist is still found when the build directory has been relocated outside the project (e.g. via `build.build-dir`, `--target-dir` or `build.target-dir`). The location of `OUT_DIR` is an internal cargo implementation detail and is subject to change without notice (e.g. the new build-dir layout in Cargo 1.100).
+- Clarified documentation of how `cargo_allowed_features()` discovers config.toml files: cargo searches hierarchically from the current working directory of the cargo invocation (not the project root) and does not read config files from within workspace member crates. Discovery is anchored at `OUT_DIR`, which lives within the target directory of the invoking project (including when this crate is a registry dependency) and can be overridden via `BUILD_SAFELY_CARGO_CONFIG_DIR`.
 
 ## [v0.6.3]
 
