@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [Unreleased]
+
+### Technical changes
+
+- Clarified documentation of how `cargo_allowed_features()` discovers config.toml files: cargo searches hierarchically from the current working directory of the cargo invocation (not the project root) and does not read config files from within workspace member crates. Discovery is anchored at `OUT_DIR`, which lives within the target directory of the invoking project (including when this crate is a registry dependency) and can be overridden via `BUILD_SAFELY_CARGO_CONFIG_DIR`.
+
 ## [v0.6.3]
 
 ### Breaking-ish changes
