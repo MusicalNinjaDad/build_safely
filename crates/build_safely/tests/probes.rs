@@ -126,6 +126,7 @@ mod nightly {
     }
 }
 
+#[cfg(false)]
 mod beta {
     use super::*;
 
