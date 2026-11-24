@@ -42,5 +42,19 @@ pub trait Nightly {
         features: F,
         allowed_features: &AllowedFeatures,
         bundle_name: &str,
-    ) -> bool;
+    ) -> bool {
+        let cfg = format!("has_{bundle_name}");
+        autocfg::emit_possibility(&cfg);
+
+        let mut has = true;
+        for feature in features.into_iter() {
+            has = self.emit_unstable_feature(feature, allowed_features) && has;
+        }
+
+        if has {
+            autocfg::emit(&cfg);
+        }
+
+        has
+    }
 }
