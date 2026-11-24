@@ -1,0 +1,1 @@
+unstable.allow-features = ["const_convert", "const_trait_impl"]
