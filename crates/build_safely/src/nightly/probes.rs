@@ -1,6 +1,7 @@
 use super::{AutoCfg, UnstableFeature};
 
 pub mod const_bool;
+pub mod const_cmp;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)

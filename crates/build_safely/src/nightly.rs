@@ -147,6 +147,12 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - Note: `const_ops` requires `const_trait_impl` to be enabled
     const_bool,
+    /// ## Provides cfg flags for feature [`const_cpm`](https://github.com/rust-lang/rust/issues/143800)
+    /// - `#![cfg_attr(unstable_const_cmp, feature(const_cmp))]`
+    /// - `#[cfg(has_const_cmp)]`
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - Note: `const_ops` requires `const_trait_impl` to be enabled
+    const_cmp,
     /// ## Provides cfg flags for feature [`const_ops`](https://github.com/rust-lang/rust/issues/143802)
     /// - `#![cfg_attr(unstable_const_ops, feature(const_ops))]`
     /// - `#[cfg(has_const_ops)]`
@@ -267,6 +273,7 @@ impl UnstableFeature {
             "bool_to_result" => Self::bool_to_result,
             "can_vector" => Self::can_vector,
             "const_bool" => Self::const_bool,
+            "const_cmp" => Self::const_cmp,
             "const_ops" => Self::const_ops,
             "const_trait_impl" => Self::const_trait_impl,
             "default_field_values" => Self::default_field_values,
@@ -352,6 +359,20 @@ impl Nightly for AutoCfg {
                 };
                 unstable(ac, &feature, allowed, extra_lines);
                 has(ac, &feature, allowed, probes::const_bool::AVAILABLE)
+            }
+            UnstableFeature::const_cmp => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::const_trait_impl,
+                    allowed_features.includes(&UnstableFeature::const_trait_impl),
+                    None,
+                ) {
+                    Some("#![feature(const_trait_impl)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(ac, &feature, allowed, probes::const_cmp::AVAILABLE)
             }
             UnstableFeature::const_ops => {
                 let extra_lines = if unstable(
