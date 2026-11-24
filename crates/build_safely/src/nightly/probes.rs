@@ -3,6 +3,7 @@ use super::{AutoCfg, UnstableFeature};
 pub mod const_bool;
 pub mod const_cmp;
 pub mod const_convert;
+pub mod const_destruct;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
