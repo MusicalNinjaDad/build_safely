@@ -94,6 +94,7 @@ use strum::Display;
 #[cfg(test)]
 use strum::EnumIter;
 
+mod probes;
 use probes::{has, make_probe, unstable};
 
 mod allowed_features;
@@ -287,8 +288,6 @@ impl UnstableFeature {
         }
     }
 }
-
-mod probes;
 
 impl Nightly for AutoCfg {
     fn emit_unstable_feature(
