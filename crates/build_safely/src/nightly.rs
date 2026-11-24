@@ -147,7 +147,7 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - Note: `const_ops` requires `const_trait_impl` to be enabled
     const_bool,
-    /// ## Provides cfg flags for feature [`const_cpm`](https://github.com/rust-lang/rust/issues/143800)
+    /// ## Provides cfg flags for feature [`const_cmp`](https://github.com/rust-lang/rust/issues/143800)
     /// - `#![cfg_attr(unstable_const_cmp, feature(const_cmp))]`
     /// - `#[cfg(has_const_cmp)]`
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
