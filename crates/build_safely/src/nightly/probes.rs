@@ -1,5 +1,7 @@
 use super::{AutoCfg, UnstableFeature};
 
+pub mod const_bool;
+
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
 /// - #![feature()] (only if allowed)
