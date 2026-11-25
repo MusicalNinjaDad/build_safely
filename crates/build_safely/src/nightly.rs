@@ -279,6 +279,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
     proc_macro_diagnostic,
+    /// ## Provides cfg flags for feature [`raw_os_error_ty`](https://github.com/rust-lang/rust/issues/107792):
+    /// - `#![cfg_attr(unstable_raw_os_error_ty, feature(raw_os_error_ty))]`
+    /// - `#[cfg(has_raw_os_error_ty)]`
+    raw_os_error_ty,
     /// ## Provides cfg flags for feature [`strip_circumfix`](https://github.com/rust-lang/rust/issues/147946)
     /// - `#![cfg_attr(unstable_strip_circumfix, feature(strip_circumfix))]`
     /// - `#[cfg(has_strip_circumfix)]`
@@ -356,6 +360,7 @@ impl UnstableFeature {
             "path_absolute_method" => Self::path_absolute_method,
             "ptr_metadata" => Self::ptr_metadata,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
+            "raw_os_error_ty" => Self::raw_os_error_ty,
             "strip_circumfix" => Self::strip_circumfix,
             "try_blocks" => Self::try_blocks,
             "try_blocks_heterogeneous" => Self::try_blocks_heterogeneous,
@@ -660,6 +665,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::proc_macro_diagnostic::AVAILABLE,
                 )
+            }
+            UnstableFeature::raw_os_error_ty => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::raw_os_error_ty::AVAILABLE)
             }
             UnstableFeature::strip_circumfix => {
                 unstable(ac, &feature, allowed, None);
