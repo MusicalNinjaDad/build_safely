@@ -221,6 +221,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_exact_size_is_empty, feature(exact_size_is_empty))]`
     /// - `#[cfg(has_exact_size_is_empty)]`
     exact_size_is_empty,
+    /// ## Provides cfg flags for feature [`fn_traits`](https://github.com/rust-lang/rust/issues/29625)
+    /// - `#![cfg_attr(unstable_fn_traits, feature(fn_traits))]`
+    /// - `#[cfg(has_fn_traits)]`
+    fn_traits,
     /// ## Provides cfg flags for feature [`integer_cast_extras`](https://github.com/rust-lang/rust/issues/154650)
     /// - `#![cfg_attr(unstable_integer_cast_extras, feature(integer_cast_extras))]`
     /// - `#[cfg(has_integer_cast_extras)]`
@@ -330,6 +334,7 @@ impl UnstableFeature {
             "error_reporter" => Self::error_reporter,
             "exact_div" => Self::exact_div,
             "exact_size_is_empty" => Self::exact_size_is_empty,
+            "fn_traits" => Self::fn_traits,
             "integer_cast_extras" => Self::integer_cast_extras,
             "integer_casts" => Self::integer_casts,
             "iter_array_chunks" => Self::iter_array_chunks,
@@ -559,6 +564,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::exact_size_is_empty::AVAILABLE,
                 )
+            }
+            UnstableFeature::fn_traits => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::fn_traits::AVAILABLE)
             }
             UnstableFeature::integer_cast_extras => {
                 let extra_lines = if unstable(
