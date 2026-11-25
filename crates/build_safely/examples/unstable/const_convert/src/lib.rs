@@ -18,13 +18,10 @@ mod has_not {
     ///     }
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     const FOO_5: Foo = Foo::new(5_u8);
     ///     const {
     ///         assert!(FOO_5.0 == 5);
     ///     }
-    /// }
     ///  ```
     fn doctest() {}
 }

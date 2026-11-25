@@ -17,13 +17,10 @@ mod has_not {
     ///     true
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     const FIVE: bool = foo();
     ///     const {
     ///         assert!(FIVE);
     ///     }
-    /// }
     ///  ```
     fn doctest() {}
 }

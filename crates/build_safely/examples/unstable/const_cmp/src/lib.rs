@@ -18,13 +18,10 @@ mod has_not {
     ///     lhs.eq(&rhs)
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     const TRUE: bool = comparisons(5, 5);
     ///     const {
     ///         assert!(TRUE);
     ///     }
-    /// }
     ///  ```
     fn doctest() {}
 }

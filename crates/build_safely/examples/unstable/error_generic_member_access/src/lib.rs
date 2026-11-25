@@ -31,12 +31,9 @@ mod has_not {
     ///     }
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     let err = Foo(2);
     ///     assert_eq!(request_ref::<usize>(&err), Some(&2));
     ///     assert_eq!(request_value::<usize>(&err), Some(2));
-    /// }
     /// ```
     fn doctest() {}
 }

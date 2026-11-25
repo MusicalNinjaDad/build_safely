@@ -14,11 +14,8 @@ mod has_not {
     ///     Some(x + 1)
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     const FIVE: Option<usize> = foo(Some(4));
     ///     assert_eq!(FIVE, Some(5));
-    /// }
     ///  ```
     fn doctest() {}
 }

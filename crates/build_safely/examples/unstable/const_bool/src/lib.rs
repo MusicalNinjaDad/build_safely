@@ -22,8 +22,6 @@ mod has_not {
     ///     9
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     assert_eq!(THEN_5, Some(5));
     ///     assert_eq!(THEN_NONE, None);
     ///     assert_eq!(THEN_SOME_9, Some(9));
@@ -32,7 +30,6 @@ mod has_not {
     ///     assert_eq!(OK_OR_ERR_5, Err(5));
     ///     assert_eq!(OK_OR_ELSE_9, Ok(()));
     ///     assert_eq!(OK_OR_ELSE_ERR_9, Err(9));
-    /// }
     ///  ```
     fn doctest() {}
 }

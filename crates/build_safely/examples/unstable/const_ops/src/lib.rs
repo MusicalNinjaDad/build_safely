@@ -33,10 +33,7 @@ mod has_not {
     ///  const ONE: Frame = Frame(1);
     ///  const TWO: Frame = ONE + ONE;
     ///
-    ///   #[test]
-    ///  fn has() {
     ///      assert_eq!(TWO, Frame(2))
-    ///  }
     ///  ```
     fn doctest() {}
 }

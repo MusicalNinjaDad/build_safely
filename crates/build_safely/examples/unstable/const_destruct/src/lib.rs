@@ -21,13 +21,10 @@ mod has_not {
     ///     }
     /// }
     ///
-    /// #[test]
-    /// fn has() {
     ///     const FOO_5: u8 = Foo::wibble(5_u8);
     ///     const {
     ///         assert!(FOO_5 == 5_u8);
     ///     }
-    /// }
     ///  ```
     fn doctest() {}
 }
