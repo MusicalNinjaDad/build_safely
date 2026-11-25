@@ -12,6 +12,7 @@ pub mod error_iter;
 pub mod error_reporter;
 pub mod fn_traits;
 pub mod offset_of_slice;
+pub mod ptr_metadata;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)

@@ -271,6 +271,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_path_absolute_method, feature(path_absolute_method))]`
     /// - `#[cfg(has_path_absolute_method)]`
     path_absolute_method,
+    /// ## Provides cfg flags for feature [`ptr_metadata`](https://github.com/rust-lang/rust/issues/81513)
+    /// - `#![cfg_attr(unstable_ptr_metadata, feature(ptr_metadata))]`
+    /// - `#[cfg(has_ptr_metadata)]`
+    ptr_metadata,
     /// ## Provides cfg flags:
     /// - `#![cfg_attr(unstable_proc_macro_diagnostic, feature(proc_macro_diagnostic))]`
     /// - `#[cfg(has_proc_macro_diagnostic)]`
@@ -350,6 +354,7 @@ impl UnstableFeature {
             "offset_of_slice" => Self::offset_of_slice,
             "os_str_split_at" => Self::os_str_split_at,
             "path_absolute_method" => Self::path_absolute_method,
+            "ptr_metadata" => Self::ptr_metadata,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
             "strip_circumfix" => Self::strip_circumfix,
             "try_blocks" => Self::try_blocks,
@@ -642,6 +647,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::path_absolute_method::AVAILABLE,
                 )
+            }
+            UnstableFeature::ptr_metadata => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::ptr_metadata::AVAILABLE)
             }
             UnstableFeature::proc_macro_diagnostic => {
                 unstable(ac, &feature, allowed, Some("extern crate proc_macro;"));
