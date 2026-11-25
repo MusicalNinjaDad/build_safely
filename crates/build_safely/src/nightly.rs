@@ -177,6 +177,12 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - Note: `const_option_ops` requires `const_trait_impl` to be enabled
     const_option_ops,
+    /// ## Provides cfg flags for feature [`const_result_trait_fn`](https://github.com/rust-lang/rust/issues/144211)
+    /// - `#![cfg_attr(unstable_const_result_trait_fn, feature(const_result_trait_fn))]`
+    /// - `#[cfg(has_const_result_trait_fn)]`
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - Note: `const_result_trait_fn` requires `const_trait_impl` to be enabled
+    const_result_trait_fn,
     /// ## Provides cfg flags for feature [`const_trait_impl`](https://github.com/rust-lang/rust/issues/143956)
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - `#[cfg(has_const_trait_impl)]`
@@ -296,6 +302,7 @@ impl UnstableFeature {
             "const_destruct" => Self::const_destruct,
             "const_ops" => Self::const_ops,
             "const_option_ops" => Self::const_option_ops,
+            "const_result_trait_fn" => Self::const_result_trait_fn,
             "const_trait_impl" => Self::const_trait_impl,
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
@@ -450,6 +457,25 @@ impl Nightly for AutoCfg {
                 };
                 unstable(ac, &feature, allowed, extra_lines);
                 has(ac, &feature, allowed, probes::const_option_ops::AVAILABLE)
+            }
+            UnstableFeature::const_result_trait_fn => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::const_trait_impl,
+                    allowed_features.includes(&UnstableFeature::const_trait_impl),
+                    None,
+                ) {
+                    Some("#![feature(const_trait_impl)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::const_result_trait_fn::AVAILABLE,
+                )
             }
             UnstableFeature::const_trait_impl => {
                 unstable(ac, &feature, allowed, None);
