@@ -1,5 +1,11 @@
 # build_safely CHANGELOG
 
+## [v0.6.4]
+
+### New features
+
+- Added `UnstableFeature::{const_bool, const_cmp, const_convert, const_destruct, const_option_ops, const_result_trait_fn, const_try}`
+
 ## [v0.6.3]
 
 ### Breaking-ish changes
