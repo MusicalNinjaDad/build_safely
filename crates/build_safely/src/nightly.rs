@@ -187,6 +187,12 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
     /// - `#[cfg(has_const_trait_impl)]`
     const_trait_impl,
+    /// ## Provides cfg flags for feature [`const_try`](https://github.com/rust-lang/rust/issues/143956)
+    /// - `#![cfg_attr(unstable_const_try, feature(const_try))]`
+    /// - `#[cfg(has_const_try)]`
+    /// - `#![cfg_attr(unstable_const_trait_impl, feature(const_trait_impl))]`
+    /// - Note: `const_try` requires `const_trait_impl` to be enabled
+    const_try,
     /// ## Provides cfg flags for feature [`default_field_values`](https://github.com/rust-lang/rust/issues/132162)
     /// - `#![cfg_attr(unstable_default_field_values, feature(default_field_values))]`
     /// - `#[cfg(has_default_field_values)]`
@@ -304,6 +310,7 @@ impl UnstableFeature {
             "const_option_ops" => Self::const_option_ops,
             "const_result_trait_fn" => Self::const_result_trait_fn,
             "const_trait_impl" => Self::const_trait_impl,
+            "const_try" => Self::const_try,
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
             "exact_div" => Self::exact_div,
@@ -480,6 +487,20 @@ impl Nightly for AutoCfg {
             UnstableFeature::const_trait_impl => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::const_trait_impl::AVAILABLE)
+            }
+            UnstableFeature::const_try => {
+                let extra_lines = if unstable(
+                    ac,
+                    &UnstableFeature::const_trait_impl,
+                    allowed_features.includes(&UnstableFeature::const_trait_impl),
+                    None,
+                ) {
+                    Some("#![feature(const_trait_impl)]")
+                } else {
+                    None
+                };
+                unstable(ac, &feature, allowed, extra_lines);
+                has(ac, &feature, allowed, probes::const_try::AVAILABLE)
             }
             UnstableFeature::default_field_values => {
                 unstable(ac, &feature, allowed, None);

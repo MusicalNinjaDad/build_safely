@@ -6,6 +6,7 @@ pub mod const_convert;
 pub mod const_destruct;
 pub mod const_option_ops;
 pub mod const_result_trait_fn;
+pub mod const_try;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
