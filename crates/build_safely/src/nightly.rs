@@ -205,6 +205,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_error_generic_member_access, feature(error_generic_member_access))]`
     /// - `#[cfg(has_error_generic_member_access)]`
     error_generic_member_access,
+    /// ## Provides cfg flags for feature [`error_iter`](https://github.com/rust-lang/rust/issues/58520)
+    /// - `#![cfg_attr(unstable_error_iter, feature(error_iter))]`
+    /// - `#[cfg(has_error_iter)]`
+    error_iter,
     /// ## Provides cfg flags for feature [`exact_div`](https://github.com/rust-lang/rust/issues/139911)
     /// - `#![cfg_attr(unstable_exact_div, feature(exact_div))]`
     /// - `#[cfg(exact_div)]`
@@ -318,6 +322,7 @@ impl UnstableFeature {
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
             "error_generic_member_access" => Self::error_generic_member_access,
+            "error_iter" => Self::error_iter,
             "exact_div" => Self::exact_div,
             "exact_size_is_empty" => Self::exact_size_is_empty,
             "integer_cast_extras" => Self::integer_cast_extras,
@@ -528,6 +533,10 @@ impl Nightly for AutoCfg {
                     allowed,
                     probes::error_generic_member_access::AVAILABLE,
                 )
+            }
+            UnstableFeature::error_iter => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::error_iter::AVAILABLE)
             }
             UnstableFeature::exact_div => {
                 unstable(ac, &feature, allowed, None);

@@ -8,6 +8,7 @@ pub mod const_option_ops;
 pub mod const_result_trait_fn;
 pub mod const_try;
 pub mod error_generic_member_access;
+pub mod error_iter;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
