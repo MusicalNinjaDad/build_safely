@@ -9,6 +9,7 @@ pub mod const_result_trait_fn;
 pub mod const_try;
 pub mod error_generic_member_access;
 pub mod error_iter;
+pub mod error_reporter;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
