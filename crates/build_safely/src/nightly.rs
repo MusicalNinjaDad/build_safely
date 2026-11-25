@@ -201,6 +201,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_doc_notable_trait, feature(doc_notable_trait))]`
     /// - `#[cfg(has_doc_notable_trait)]`
     doc_notable_trait,
+    /// ## Provides cfg flags for feature [`error_generic_member_access`](https://github.com/rust-lang/rust/issues/99301)
+    /// - `#![cfg_attr(unstable_error_generic_member_access, feature(error_generic_member_access))]`
+    /// - `#[cfg(has_error_generic_member_access)]`
+    error_generic_member_access,
     /// ## Provides cfg flags for feature [`exact_div`](https://github.com/rust-lang/rust/issues/139911)
     /// - `#![cfg_attr(unstable_exact_div, feature(exact_div))]`
     /// - `#[cfg(exact_div)]`
@@ -313,6 +317,7 @@ impl UnstableFeature {
             "const_try" => Self::const_try,
             "default_field_values" => Self::default_field_values,
             "doc_notable_trait" => Self::doc_notable_trait,
+            "error_generic_member_access" => Self::error_generic_member_access,
             "exact_div" => Self::exact_div,
             "exact_size_is_empty" => Self::exact_size_is_empty,
             "integer_cast_extras" => Self::integer_cast_extras,
@@ -514,6 +519,15 @@ impl Nightly for AutoCfg {
             UnstableFeature::doc_notable_trait => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::doc_notable_trait::AVAILABLE)
+            }
+            UnstableFeature::error_generic_member_access => {
+                unstable(ac, &feature, allowed, None);
+                has(
+                    ac,
+                    &feature,
+                    allowed,
+                    probes::error_generic_member_access::AVAILABLE,
+                )
             }
             UnstableFeature::exact_div => {
                 unstable(ac, &feature, allowed, None);
