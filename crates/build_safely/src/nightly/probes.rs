@@ -14,6 +14,7 @@ pub mod fn_traits;
 pub mod offset_of_slice;
 pub mod ptr_metadata;
 pub mod raw_os_error_ty;
+pub mod structural_match;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
