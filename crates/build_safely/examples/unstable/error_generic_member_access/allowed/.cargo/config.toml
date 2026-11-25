@@ -1,0 +1,1 @@
+unstable.allow-features = ["error_generic_member_access"]
