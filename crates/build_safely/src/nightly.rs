@@ -291,6 +291,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_structural_match, feature(structural_match))]`
     /// - `#[cfg(has_structural_match)]`
     structural_match,
+    /// ## Provides cfg flags for feature [`trait_alias`](https://github.com/rust-lang/rust/issues/41517)
+    /// - `#![cfg_attr(unstable_trait_alias, feature(trait_alias))]`
+    /// - `#[cfg(has_trait_alias)]`
+    trait_alias,
     /// ## Provides cfg flags for feature [`try_blocks`](https://github.com/rust-lang/rust/issues/154391)
     /// - `#![cfg_attr(unstable_try_blocks, feature(try_blocks))]`
     /// - `#[cfg(has_try_blocks)]`
@@ -367,6 +371,7 @@ impl UnstableFeature {
             "raw_os_error_ty" => Self::raw_os_error_ty,
             "strip_circumfix" => Self::strip_circumfix,
             "structural_match" => Self::structural_match,
+            "trait_alias" => Self::trait_alias,
             "try_blocks" => Self::try_blocks,
             "try_blocks_heterogeneous" => Self::try_blocks_heterogeneous,
             "try_trait_v2" => Self::try_trait_v2,
@@ -682,6 +687,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::structural_match => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::structural_match::AVAILABLE)
+            }
+            UnstableFeature::trait_alias => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::trait_alias::AVAILABLE)
             }
             UnstableFeature::try_blocks => {
                 unstable(ac, &feature, allowed, None);
