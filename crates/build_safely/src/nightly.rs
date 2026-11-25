@@ -259,6 +259,10 @@ pub enum UnstableFeature {
     /// - `#![cfg_attr(unstable_never_type, feature(never_type))]`
     /// - `#[cfg(has_never_type)]`
     never_type,
+    /// ## Provides cfg flags for feature [`offset_of_slice`](https://github.com/rust-lang/rust/issues/126151)
+    /// - `#![cfg_attr(unstable_offset_of_slice, feature(offset_of_slice))]`
+    /// - `#[cfg(has_offset_of_slice)]`
+    offset_of_slice,
     /// ## Provides cfg flags for feature [`os_str_split_at`](https://github.com/rust-lang/rust/issues/156199)
     /// - `#![cfg_attr(unstable_os_str_split_at, feature(os_str_split_at))]`
     /// - `#[cfg(has_os_str_split_at)]`
@@ -343,6 +347,7 @@ impl UnstableFeature {
             "iterator_try_collect" => Self::iterator_try_collect,
             "negative_impls" => Self::negative_impls,
             "never_type" => Self::never_type,
+            "offset_of_slice" => Self::offset_of_slice,
             "os_str_split_at" => Self::os_str_split_at,
             "path_absolute_method" => Self::path_absolute_method,
             "proc_macro_diagnostic" => Self::proc_macro_diagnostic,
@@ -620,6 +625,10 @@ impl Nightly for AutoCfg {
             UnstableFeature::never_type => {
                 unstable(ac, &feature, allowed, None);
                 has(ac, &feature, allowed, probes::never_type::AVAILABLE)
+            }
+            UnstableFeature::offset_of_slice => {
+                unstable(ac, &feature, allowed, None);
+                has(ac, &feature, allowed, probes::offset_of_slice::AVAILABLE)
             }
             UnstableFeature::os_str_split_at => {
                 unstable(ac, &feature, allowed, None);

@@ -11,6 +11,7 @@ pub mod error_generic_member_access;
 pub mod error_iter;
 pub mod error_reporter;
 pub mod fn_traits;
+pub mod offset_of_slice;
 
 /// Prefix with:
 /// - #![allow(stable_features)] (only if allowed)
